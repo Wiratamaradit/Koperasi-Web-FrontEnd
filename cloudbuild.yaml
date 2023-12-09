@@ -1,0 +1,42 @@
+steps:
+  - name: bash
+    script: |
+      #!/usr/bin/env bash
+      sed -i "s/PROJECT_ID/$PROJECT_ID/g" ./deployment.yaml
+      sed -i "s/IMAGE_REPO/$IMAGE_REPO/g" ./deployment.yaml
+      sed -i "s/IMAGE_NAME/$IMAGE_NAME/g" ./deployment.yaml
+      sed -i "s/REGION/$REGION/g" ./deployment.yaml
+      sed -i "s/SQL_INSTANCE/$SQL_INSTANCE/g" ./deployment.yaml
+    env:
+      - 'PROJECT_ID=${_PROJECT_ID}'
+      - 'IMAGE_REPO=${_IMAGE_REPO}'
+      - 'IMAGE_NAME=${_IMAGE_NAME}'
+      - 'REGION=${_REGION}'
+      - 'SQL_INSTANCE=${_SQL_INSTANCE}'
+      - 'APP_ENVIRONMENT=${_APP_ENVIRONMENT}'
+    # build the container image
+  - name: "gcr.io/cloud-builders/docker"
+    args: [
+      "build",
+      "--build-arg",
+      "ENVIRONMENT=${_APP_ENVIRONMENT}",
+      "-t",
+      "${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_IMAGE_REPO}/${_IMAGE_NAME}:latest",
+      "-f",
+      "Dockerfile",
+      "."
+    ]
+    # push container image
+  - name: "gcr.io/cloud-builders/docker"
+    args: [ "push", "${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_IMAGE_REPO}/${_IMAGE_NAME}:latest" ]
+    # deploy container image to GKE
+  - name: "gcr.io/cloud-builders/gke-deploy"
+    env:
+      - 'ENVIRONMENT=${_APP_ENVIRONMENT}'
+    args:
+      - run
+      - --filename=deployment.yaml
+      - --image=${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_IMAGE_REPO}/${_IMAGE_NAME}:latest
+      - --location=${_REGION}
+      - --project=${_PROJECT_ID}
+      - --cluster=${_CLUSTER_NAME}

@@ -1,0 +1,9 @@
+.responsive-datatable {
+    overflow-x: auto;
+}
+
+@media screen and (max-width: 400px) {
+    .datatable-container .p-datatable-scrollable-body {
+        overflow: auto !important;
+    }
+}
