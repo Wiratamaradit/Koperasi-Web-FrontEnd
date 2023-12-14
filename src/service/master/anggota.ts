@@ -8,9 +8,10 @@ export type TAnggota = {
     alamat: string;
     departemen: string;
     jabatan: string;
+    golongan: string;
+    divisi: string;
     status_karyawan: string;
     deskripsi: string;
-    status: string;
 };
 
 export const URL_ANGGOTA_LIST = `${process.env.NEXT_PUBLIC_API_URL_LARAVEL}/api/list`
@@ -24,7 +25,7 @@ export function listAnggota() {
     return axios.get(URL_ANGGOTA_LIST)
 }
 
-export function detaiAnggota(id: any) {
+export function detailAnggota(id: any) {
     return axios.get(URL_ANGGOTA_Detail + `/${id}`)
 }
 
@@ -36,9 +37,10 @@ export function createAnggota(data: TAnggota) {
         alamat: data.alamat,
         departemen: data.departemen,
         jabatan: data.jabatan,
+        golongan: data.golongan,
+        divisi: data.divisi,
         status_karyawan: data.status_karyawan,
-        deskripsi: data.deskripsi,
-        status: data.status
+        deskripsi: data.deskripsi
     });
 }
 
@@ -50,9 +52,10 @@ export function updateAnggota(data: TAnggota, id: any) {
         alamat: data.alamat,
         departemen: data.departemen,
         jabatan: data.jabatan,
+        golongan: data.golongan,
+        divisi: data.divisi,
         status_karyawan: data.status_karyawan,
-        deskripsi: data.deskripsi,
-        status: data.status
+        deskripsi: data.deskripsi
     });
 }
 

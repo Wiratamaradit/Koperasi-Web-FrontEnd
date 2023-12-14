@@ -21,7 +21,7 @@ const Menuitems = [
         id: uniqueId(),
         title: 'Dashboard',
         icon: IconLayoutDashboard,
-        href: '/',
+        href: '/master/dashboard',
     },
     {
         navlabel: true,
@@ -41,7 +41,7 @@ const Menuitems = [
         id: uniqueId(),
         title: 'Pinjaman',
         icon: IconReportMoney,
-        href: '/utilities/pinjaman',
+        href: '/master/pinjaman',
     },
     {
         id: uniqueId(),
@@ -55,7 +55,7 @@ const Menuitems = [
     },
     {
         id: uniqueId(),
-        title: 'Angggota',
+        title: 'Anggota',
         icon: IconUser,
         href: '/master/anggota',
     },
@@ -68,3 +68,4 @@ const Menuitems = [
 ];
 
 export default Menuitems;
+

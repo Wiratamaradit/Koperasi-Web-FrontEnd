@@ -2,6 +2,8 @@ import {useMediaQuery, Box, Drawer, IconButton, Button} from '@mui/material';
 import SidebarItems from './SidebarItems';
 import React from "react";
 import DynamicPricing from "../../../components/shared/dynamic-pricing/DynamicPricing";
+import Menuitems from './MenuItems';
+
 
 interface ItemType {
     isMobileSidebarOpen: boolean;

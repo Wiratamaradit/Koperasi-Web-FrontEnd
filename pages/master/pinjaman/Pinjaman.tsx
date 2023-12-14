@@ -5,15 +5,14 @@ import PageContainer from "../../../src/components/container/PageContainer";
 import BreadcrumbBase from "../../../src/base/components/BaseBreadCrumb/BaseBreadCrumb";
 import withSessionCheck from "../../../src/base/utils/WithAuth";
 import React, {useEffect, useRef, useState} from "react";
-import {deleteAnggota, listAnggota, TAnggota, updateAnggota} from "../../../src/service/master/anggota";
 import {Toast} from "primereact/toast";
-import TableAnggota from "../../../src/components-koperasi/master/anggota/TableAnggota";
 import {Dialog} from "primereact/dialog";
-import FormAnggota from "../../../src/components-koperasi/master/anggota/FormAnggota";
+import TablePinjaman from "../../../src/components-koperasi/master/pinjaman/TablePinjaman";
+import { deletePinjaman, listPinjaman, TPinjaman, updatePinjaman } from "../../../src/service/master/pinjaman";
 
 const Anggota = () => {
     const breadcrumbItems: MenuItem[] = [
-        {label: 'Anggota', url: '/master/anggota'},
+        {label: 'Pinjaman', url: '/master/pinjaman'},
     ];
     const toast = useRef<Toast | null>(null);
     const [loading, setLoading] = useState<boolean>(false)
@@ -26,7 +25,7 @@ const Anggota = () => {
     const getList = async () => {
         try {
             setLoading(true)
-            const response = await listAnggota()
+            const response = await listPinjaman()
             setLList(response.data.data)
             setLoading(false)
         } catch (error: any) {
@@ -40,20 +39,18 @@ const Anggota = () => {
         }
     }
 
-    const handleUpdate = async (data: TAnggota, id: number) => {
+    const handleUpdate = async (data: TPinjaman, id: number) => {
         try {
             setLoading(true)
-            const response = await updateAnggota({
-                nik: data.nik,
-                name: data.name,
-                ttl: data.ttl,
-                alamat: data.alamat,
-                departemen: data.departemen,
-                jabatan: data.jabatan,
-                golongan: data.golongan,
-                divisi: data.divisi,
-                status_karyawan: data.status_karyawan,
+            const response = await updatePinjaman({
+                id_anggota: data.id_anggota,
+                tgl_pinjaman: data.tgl_pinjaman,
+                pinjaman: data.pinjaman,
+                bunga: data.bunga,
+                tenor: data.tenor,
+                jatuh_tempo: data.jatuh_tempo,
                 deskripsi: data.deskripsi,
+                status: data.status
             }, id)
             toast.current!.show({
                 severity: 'success',
@@ -71,7 +68,7 @@ const Anggota = () => {
     const handleDelete = async (id: number) => {
         try {
             setLoading(true)
-            const response = await deleteAnggota(id)
+            const response = await deletePinjaman(id)
             toast.current!.show({
                 severity: 'success',
                 summary: 'Success',
@@ -79,6 +76,7 @@ const Anggota = () => {
                 life: 3000
             });
             getList()
+
             setLoading(false)
         } catch (error) {
             setLoading(false)
@@ -91,10 +89,10 @@ const Anggota = () => {
 
     return (
         <FullLayout>
-            <PageContainer title="Anggota">
+            <PageContainer title="Pinjaman">
                 <Toast ref={toast}/>
                 <Card
-                    title="Anggota"
+                    title="Pinjaman"
                     className="mb-2"
                     subTitle={<BreadcrumbBase items={breadcrumbItems}/>}
                     pt={{
@@ -103,7 +101,7 @@ const Anggota = () => {
                         subTitle: {className: 'mb-0'},
                     }}
                 />
-                <TableAnggota
+                <TablePinjaman
                     data={list}
                     loading={loading}
                     setDialogForm={(data) => setDialogForm(data)}
@@ -111,7 +109,7 @@ const Anggota = () => {
                     setSelectedData={(data) => setSelectedData(data)}
                 />
                 <Dialog
-                    header={formCondition + ' Data : ' + selectedData?.name}
+                    header={formCondition + ' Data ' + selectedData?.id_anggota}
                     visible={dialogForm}
                     onHide={() => {
                         setFormCondition('')
@@ -120,13 +118,7 @@ const Anggota = () => {
                     }}
                     style={{width: '30vw'}}
                 >
-                    <FormAnggota
-                        formCondition={formCondition}
-                        selectedData={selectedData}
-                        setDialogForm={(data: boolean) => setDialogForm(data)}
-                        saveUpdate={(data :TAnggota, id:number) => handleUpdate(data, id)}
-                        saveDelete={(id:number) => handleDelete(id)}
-                    />
+                    
                 </Dialog>
             </PageContainer>
         </FullLayout>
