@@ -1,13 +1,15 @@
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Toolbar } from "primereact/toolbar";
-import { Button } from "primereact/button";
-import { Paginator } from "primereact/paginator";
-import { useEffect, useState } from "react";
+import {DataTable, DataTableFilterMeta} from "primereact/datatable";
+import {Column} from "primereact/column";
+import {Toolbar} from "primereact/toolbar";
+import {Button} from "primereact/button";
+import {Paginator} from "primereact/paginator";
+import {useEffect, useState} from "react";
 import axios from "axios";
+import {Dropdown} from "primereact/dropdown";
 
 type TTablePinjaman = {
     data: any;
+    anggotaList: any;
     loading: boolean;
     setDialogForm: (data: boolean) => void;
     setFormCondition: (data: string) => void;
@@ -17,53 +19,38 @@ type TTablePinjaman = {
 const TablePinjaman = (props: TTablePinjaman) => {
     const [first, setFirst] = useState(0);
     const [rows, setRows] = useState(5);
-    const [relatedData, setRelatedData] = useState<any[]>([]);
+    const [selectedAnggota, setSelectedAnggota] = useState<any>(5);
 
-    useEffect(() => {
-        fetchRelatedDataForAllPinjamans();
-    }, []);
-
-    const fetchRelatedDataForAllPinjamans = async () => {
-        try {
-            const data = await fetchRelatedData();
-            setRelatedData(data);
-        } catch (error) {
-            console.error("Error fetching related data:", error);
-        }
-    };
-
-    const fetchRelatedData = async () => {
-        try {
-            const response = await axios.get('http://localhost:8000/api/listPinjaman');
-            return response.data;
-        } catch (error) {
-            console.error("Error fetching related data:", error);
-            return [];
-        }
-    };
-
-    const renderIdAnggotaColumn = (rowData: any) => {
-        const relatedInfo = relatedData.find((item) => item.id === rowData.id_anggota);
-        return relatedInfo ? (
-            <div>
-                <p>{relatedInfo.id_anggota}</p>
-            </div>
-        ) : (
-            <p>No data found</p>
-        );
-    };
+    const transformed = props.anggotaList.map((item: any) => {
+        const nameParts = item.name.split(" ").slice(0, 2);
+        const transformedItem = {
+            name: nameParts.join(" "),
+            code: item.id
+        };
+        return transformedItem;
+    });
 
     const startContent = (
-        <Button
-            label="Create"
-            icon="pi pi-plus"
-            severity="success"
-            size="small"
-            onClick={() => {
-                props.setFormCondition("Create");
-                props.setDialogForm(true);
-            }}
-        />
+        <>
+            <Button
+                label="Create"
+                icon="pi pi-plus"
+                severity="success"
+                size="small"
+                onClick={() => {
+                    props.setFormCondition("Create");
+                    props.setDialogForm(true);
+                }}
+            />
+            <Dropdown
+                value={selectedAnggota}
+                onChange={(e) => setSelectedAnggota(e.value)}
+                options={transformed}
+                optionLabel="name"
+                placeholder="Cari Anggota"
+                className="w-full md:w-14rem ml-2"
+            />
+        </>
     );
 
     const onPageChange = (event: { first: number; rows: number }) => {
@@ -100,30 +87,30 @@ const TablePinjaman = (props: TTablePinjaman) => {
 
     return (
         <div className="card">
-            <Toolbar start={startContent} />
+            <Toolbar start={startContent}/>
             <DataTable
-                value={props.data?.slice(first, first + rows)}
+                value={props.data}
                 loading={props.loading}
                 stripedRows
                 scrollable
             >
-                <Column header="#" headerStyle={{ width: '3rem' }} body={(data, options) => options.rowIndex + 1} />
-                <Column field="id_anggota" header="Id Anggota" body={renderIdAnggotaColumn} />
-                <Column field="tgl_pinjaman" header="Tgl Pinjaman" />
-                <Column field="pinjaman" header="Total Pinjaman" />
-                <Column field="bunga" header="Bunga" />
-                <Column field="tenor" header="Tenor" />
-                <Column field="jatuh_tempo" header="Jatuh Tempo" />
-                <Column field="deskripsi" header="Deskripsi" />
-                <Column field="status" header="Status" />
-                <Column body={crudButton} />
+                <Column header="#" headerStyle={{width: '3rem'}} body={(data, options) => options.rowIndex + 1}/>
+                <Column field="anggotas.name" header="Anggota"/>
+                <Column field="tgl_pinjaman" header="Tgl Pinjaman"/>
+                <Column field="pinjaman" header="Total Pinjaman"/>
+                <Column field="bunga" header="Bunga"/>
+                <Column field="tenor" header="Tenor"/>
+                <Column field="jatuh_tempo" header="Jatuh Tempo"/>
+                <Column field="deskripsi" header="Deskripsi"/>
+                <Column field="status" header="Status"/>
+                <Column body={crudButton}/>
             </DataTable>
             <Paginator
                 first={first}
                 rows={rows}
                 totalRecords={props.data?.length}
                 onPageChange={onPageChange}
-                style={{ marginTop: "10px" }}
+                style={{marginTop: "10px"}}
             />
         </div>
     );

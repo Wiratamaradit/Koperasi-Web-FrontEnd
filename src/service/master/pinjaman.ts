@@ -1,5 +1,5 @@
 import axios from "axios";
-import { URL_ANGGOTA_LIST } from "./anggota";
+import {URL_ANGGOTA_LIST} from "./anggota";
 
 export type TPinjaman = {
     id_pinjaman?: number;
@@ -21,16 +21,7 @@ export const URL_PINJAMAN_DELLETE = `${process.env.NEXT_PUBLIC_API_URL_LARAVEL}/
 
 
 export function listPinjaman() {
-    return axios.get(URL_PINJAMAN_LIST)
-        .then(response => {
-            const pinjamans = response.data;
-            console.log(pinjamans);
-            return pinjamans;
-        })
-        .catch(error => {
-            console.error('Error fetching pinjamans', error);
-            throw error;
-        });
+    return axios.get(URL_PINJAMAN_LIST);
 }
 
 export function detailPinjaman(id_pinjaman: any) {

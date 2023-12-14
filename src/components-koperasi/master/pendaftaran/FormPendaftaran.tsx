@@ -11,8 +11,8 @@ import { Toast } from "primereact/toast";
 
 type TFormPendaftaran = {
     formCondition: string;
-    selectedData: any;
-    setDialogForm: (data: boolean) => void;
+    selectedData?: any;
+    setDialogForm?: (data: boolean) => void;
     saveCreate?: (data: TAnggota) => void;
     routeUrl?: string;
     loadingButton?: boolean;

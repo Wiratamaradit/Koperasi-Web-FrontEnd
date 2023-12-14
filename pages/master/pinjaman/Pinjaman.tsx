@@ -8,7 +8,8 @@ import React, {useEffect, useRef, useState} from "react";
 import {Toast} from "primereact/toast";
 import {Dialog} from "primereact/dialog";
 import TablePinjaman from "../../../src/components-koperasi/master/pinjaman/TablePinjaman";
-import { deletePinjaman, listPinjaman, TPinjaman, updatePinjaman } from "../../../src/service/master/pinjaman";
+import {deletePinjaman, listPinjaman, TPinjaman, updatePinjaman} from "../../../src/service/master/pinjaman";
+import {listAnggota} from "../../../src/service/master/anggota";
 
 const Anggota = () => {
     const breadcrumbItems: MenuItem[] = [
@@ -19,6 +20,7 @@ const Anggota = () => {
     const [dialogForm, setDialogForm] = useState<boolean>(false)
 
     const [list, setLList] = useState<[] | any>([])
+    const [anggotaList, setAnggotaList] = useState<[] | any>([])
     const [formCondition, setFormCondition] = useState<string>('')
     const [selectedData, setSelectedData] = useState<any>()
 
@@ -36,6 +38,20 @@ const Anggota = () => {
                 life: 3000
             });
             setLoading(false)
+        }
+    }
+
+    const getAnggota = async () => {
+        try {
+            const response = await listAnggota()
+            setAnggotaList(response.data.data)
+        } catch (error: any) {
+            toast.current!.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: `${error.response.data.message}`,
+                life: 3000
+            });
         }
     }
 
@@ -85,6 +101,7 @@ const Anggota = () => {
 
     useEffect(() => {
         getList()
+        getAnggota()
     }, []);
 
     return (
@@ -103,13 +120,14 @@ const Anggota = () => {
                 />
                 <TablePinjaman
                     data={list}
+                    anggotaList={anggotaList}
                     loading={loading}
                     setDialogForm={(data) => setDialogForm(data)}
                     setFormCondition={(data) => setFormCondition(data)}
                     setSelectedData={(data) => setSelectedData(data)}
                 />
                 <Dialog
-                    header={formCondition + ' Data ' + selectedData?.id_anggota}
+                    header={formCondition + ' Data ' + (selectedData ? selectedData?.id_anggota : '')}
                     visible={dialogForm}
                     onHide={() => {
                         setFormCondition('')
@@ -118,7 +136,8 @@ const Anggota = () => {
                     }}
                     style={{width: '30vw'}}
                 >
-                    
+
+
                 </Dialog>
             </PageContainer>
         </FullLayout>
