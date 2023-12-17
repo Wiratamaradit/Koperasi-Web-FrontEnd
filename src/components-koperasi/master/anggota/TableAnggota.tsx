@@ -15,7 +15,7 @@ type TTableAnggota = {
 
 const TableAnggota = (props: TTableAnggota) => {
     const [first, setFirst] = useState(0); // Menyimpan indeks pertama untuk paginasi
-    const [rows, setRows] = useState(10); // Jumlah baris per halaman, sesuaikan sesuai kebutuhan
+    const [rows, setRows] = useState(5); // Jumlah baris per halaman, sesuaikan sesuai kebutuhan
 
     const onPageChange = (event: { first: number; rows: number }) => {
         setFirst(event.first);

@@ -1,70 +1,77 @@
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { InputText } from "primereact/inputtext";
 import clsx from "clsx";
 import { InputNumber } from "primereact/inputnumber";
 import { Button } from "primereact/button";
-import { TAnggota } from "../../../service/master/anggota";
 import { Dropdown } from "primereact/dropdown";
+import { TPinjaman } from "../../../service/master/pinjaman";
+import { Toast } from "primereact/toast";
 
-type TFormAnggota = {
+type TFormPinjaman = {
     formCondition: string,
     selectedData: any,
+    pinjamanList: any,
+    anggotaList: any,
     setDialogForm: (data: boolean) => void,
-    saveCreate?: (data: TAnggota) => void,
-    saveUpdate?: (data: TAnggota, id: number) => void,
+    saveCreate?: (data: TPinjaman) => void,
+    saveUpdate?: (data: TPinjaman, id: number) => void,
     saveDelete?: (id: number) => void,
     routeUrl?: string,
     loadingButton?: boolean
 }
 
 const schema = Yup.object().shape({
-    nik: Yup.number()
-        .required('NIK is required'),
-    name: Yup.string()
-        .required('Name is required'),
-    ttl: Yup.string(),
-    alamat: Yup.string(),
-    departemen: Yup.string(),
-    jabatan: Yup.string(),
-    golongan: Yup.string(),
-    divisi: Yup.string(),
-    status_karyawan: Yup.string(),
+    id: Yup.string().required('id is required'),
+    tgl_pinjaman: Yup.string(),
+    pinjaman: Yup.string(),
+    bunga: Yup.string(),
+    tenor: Yup.string(),
+    jatuh_tempo: Yup.string(),
     deskripsi: Yup.string(),
+    status: Yup.string()
 })
 
 const initialValues = {
-    nik: 0,
-    name: '',
-    ttl: '',
-    alamat: '',
-    departemen: '',
-    jabatan: '',
-    golongan: '',
-    divisi: '',
-    status_karyawan: '',
+    id: '',
+    tgl_pinjaman: '',
+    pinjaman: '',
+    bunga: '',
+    tenor: '',
+    jatuh_tempo: '',
     deskripsi: '',
+    status: ''
 }
 
-const FormAnggota = (props: TFormAnggota) => {
+const FormPinjaman = (props: TFormPinjaman) => {
+    const toast = useRef<Toast | null>(null);
+    const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+    const [anggotaList, setAnggotaList] = useState([])
+
+    useEffect(() => {
+        console.log("anggotaList:", props.anggotaList);
+    }, [props.anggotaList]);
+
+    const dropdownOptions = (props.anggotaList || []).map((item: any) => {
+        const anggotaId = item.name || '';
+        return { label: anggotaId, value: anggotaId };
+    });
 
     const [initData, setInitData] = useState<any>(initialValues);
 
     useEffect(() => {
         if (props.formCondition === 'Update') {
             setInitData({
-                nik: props.selectedData.nik,
-                name: props.selectedData.name,
-                ttl: props.selectedData.ttl,
-                alamat: props.selectedData.alamat,
-                departemen: props.selectedData.departemen,
-                jabatan: props.selectedData.jabatan,
-                golongan: props.selectedData.golongan,
-                divisi: props.selectedData.divisi,
-                status_karyawan: props.selectedData.status_karyawan,
+                anggota: props.selectedData.anggotas?.id || '',
+                tgl_pinjaman: props.selectedData.tgl_pinjaman,
+                golongan: props.selectedData.anggotas?.golongan || '',
+                pinjaman: props.selectedData.pinjaman,
+                bunga: props.selectedData.bunga,
+                tenor: props.selectedData.tenor,
+                jatuh_tempo: props.selectedData.jatuh_tempo,
                 deskripsi: props.selectedData.deskripsi,
-                status: props.selectedData.status,
+                status: props.selectedData.status
             })
         }
     }, [props.formCondition]);
@@ -78,287 +85,391 @@ const FormAnggota = (props: TFormAnggota) => {
         validationSchema: schema,
         onSubmit: async (values, { setStatus, setSubmitting }) => {
             try {
-                (props.formCondition === 'Update')
-                props.saveUpdate!(values, props.selectedData.id)
-                props.setDialogForm(false)
-
+                if (props.formCondition === "Pengajuan") {
+                    props.saveCreate!(values);
+                } else if (props.formCondition === "Update") {
+                    props.saveUpdate!(values, props.selectedData.id);
+                }
             } catch (error) {
-                (props.formCondition === 'Update')
-
-                setSubmitting(false)
+                setSubmitting(false);
             }
+        },
+    });
+
+    const handleSubmitCreate = (e: { preventDefault: () => void; }) => {
+        e.preventDefault();
+        props.setDialogForm(false);
+    }
+
+    const handleYes = () => {
+        if (props.saveCreate) {
+            props.saveCreate(formik.values);
         }
-    })
 
-    useEffect(() => {
-        const jabatan = formik.values.jabatan;
+        setInitData(initialValues);
+        setShowConfirmation(false);
 
-        const golonganMap: Record<string, string> = {
-            'Service Technician': 'Gol 1',
-            'Service Coordinator': 'Gol 1',
-            'Admin': 'Gol 1',
-            'Store Keeper': 'Gol 1',
-            'Service Supervisor': 'Gol 2',
-            'Service Planner': 'Gol 2',
-            'Credit Control': 'Gol 2',
-            'Customer Development Executive': 'Gol 2',
-            'Service Manager': 'Gol 3',
-            'Branch Manager': 'Gol 3',
-            'Customer Development Manager': 'Gol 3',
-        };
+        if (toast.current) {
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: 'Data saved successfully',
+                life: 3000,
+            });
+        }
+    };
 
-        const selectedGolongan = golonganMap[jabatan] || '';
-
-        formik.setFieldValue('golongan', selectedGolongan);
-    }, [formik.values.jabatan]);
+    const handleNo = () => {
+        setShowConfirmation(false);
+    };
 
     return (
         <div>
             {
-                props.formCondition === 'Delete' &&
-                <div className="grid flex justify-content-center align-items-center">
-                    <div className="col-12 text-center">
-                        Do you want to delete <strong>{props.selectedData?.name}</strong> ?
-                    </div>
-                    <div className="col-12 text-center">
-                        <span className="p-buttonset">
-                            <Button
-                                label="No"
-                                severity='secondary'
-                                icon="pi pi-times"
-                                size="small"
-                                onClick={() => {
-                                    props.setDialogForm(false)
-                                }}
-                            />
-                            <Button
-                                label="Yes"
-                                severity='danger'
-                                icon="pi pi-trash"
-                                size="small"
-                                onClick={() => {
-                                    if (props.saveDelete) {
-                                        props.saveDelete(props.selectedData.id);
+                props.formCondition === 'Delete' && (
+                    <div className="grid flex justify-content-center align-items-center">
+                        <div className="col-12 text-center">
+                            Do you want to delete <strong>{props.selectedData?.id_pinjaman}</strong> ?
+                        </div>
+                        <div className="col-12 text-center">
+                            <span className="p-buttonset">
+                                <Button
+                                    label="No"
+                                    severity='secondary'
+                                    icon="pi pi-times"
+                                    size="small"
+                                    onClick={() => {
                                         props.setDialogForm(false)
-                                    }
-                                }}
-                            />
-                        </span>
+                                    }}
+                                />
+                                <Button
+                                    label="Yes"
+                                    severity='danger'
+                                    icon="pi pi-trash"
+                                    size="small"
+                                    onClick={() => {
+                                        if (props.saveDelete) {
+                                            props.saveDelete(props.selectedData.id_pinjaman);
+                                            props.setDialogForm(false)
+                                        }
+                                    }}
+                                />
+                            </span>
+                        </div>
                     </div>
-                </div>
-            }
+                )}
             {
-                props.formCondition === 'Update' &&
-                <form className='form w-100' onSubmit={formik.handleSubmit}>
-                    <div className="grid">
-                        <div className="col-3">
-                            <p>NIK</p>
-                        </div>
-                        <div className="col-9">
-                            <div
-
-                                className={clsx(
-                                    ' w-ful form-control bg-transparent',
-                                    { 'is-invalid': formik.touched.nik && formik.errors.nik },
-                                    {
-                                        'is-valid': formik.touched.nik && !formik.errors.nik,
-                                    }
-                                )}
-                            >
-                                <InputNumber
-                                    id="nik"
-                                    name="nik"
-                                    placeholder="Masukkan NIK"
-                                    value={formik.values.nik || ''}
+                props.formCondition === 'Update' && (
+                    <form className='form w-100' onSubmit={formik.handleSubmit}>
+                        <div className="grid">
+                            <div className="col-3">
+                                <p>Anggota</p>
+                            </div>
+                            <div className="col-9">
+                                <Dropdown
+                                    id="anggota"
+                                    name="anggota"
+                                    placeholder="Pilih Nama Anggota"
+                                    value={formik.values.anggota || ''}
+                                    options={dropdownOptions}
                                     onChange={(e) => {
-                                        formik.setFieldValue('nik', e.value);
+                                        formik.setFieldValue('anggota', e.target.value);
                                     }}
-                                    className="w-full"
-                                    useGrouping={false}
+                                    className={clsx(
+                                        'w-full form-control bg-transparent',
+                                        { 'is-invalid': formik.touched.anggota && formik.errors.anggota },
+                                        { 'is-valid': formik.touched.anggota && !formik.errors.anggota }
+                                    )}
                                 />
                             </div>
-                        </div>
-                        <div className="col-3">
-                            <p>Name</p>
-                        </div>
-                        <div className="col-9">
-                            <div
-                                className={clsx(
-                                    ' w-ful form-control bg-transparent',
-                                    { 'is-invalid': formik.touched.name && formik.errors.name },
-                                    {
-                                        'is-valid': formik.touched.name && !formik.errors.name,
-                                    }
-                                )}
-                            >
+                            <div className="col-3">
+                                <p>Tanggal Pinjaman</p>
+                            </div>
+                            <div className="col-9">
                                 <InputText
-                                    id="name"
-                                    name="name"
-                                    placeholder="Masukkan Nama"
-                                    value={formik.values.name || ''}
+                                    id="tgl_pinjaman"
+                                    name="tgl_pinjaman"
+                                    placeholder="Masukkan Tanggal Pinjaman"
+                                    value={formik.values.tgl_pinjaman || ''}
                                     onChange={(e) => {
-                                        formik.setFieldValue('name', e.target.value);
+                                        formik.setFieldValue('tgl_pinjaman', e.target.value);
                                     }}
                                     className="w-full"
                                 />
                             </div>
+                            <div className="col-3">
+                                <p>Total Pinjaman</p>
+                            </div>
+                            <div className="col-9">
+                                <InputNumber
+                                    id="pinjaman"
+                                    name="pinjaman"
+                                    placeholder="Masukkan Nominal Pinjaman"
+                                    value={formik.values.pinjaman || ''}
+                                    onChange={(e) => {
+                                        formik.setFieldValue('pinjaman', e.value);
+                                    }}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-3">
+                                <p>Bunga</p>
+                            </div>
+                            <div className="col-9">
+                                <InputText
+                                    id="bunga"
+                                    name="bunga"
+                                    value={'1,5'}
+                                    readOnly // membuatnya menjadi readonly
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-3">
+                                <p>Tenor</p>
+                            </div>
+                            <div className="col-9">
+                                <Dropdown
+                                    id="tenor"
+                                    name="tenor"
+                                    placeholder="Pilih tenor yang diinginkan"
+                                    optionLabel="label"
+                                    value={formik.values.tenor || null}
+                                    options={[
+                                        { label: 'Cicilan 6 Bulan', value: (6) },
+                                        { label: 'Cicilan 12 Bulan', value: (12) }
+                                    ]}
+                                    onChange={(e) => {
+                                        formik.setFieldValue('tenor', e.target.value);
+                                    }}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-3">
+                                <p>Jatuh Tempo</p>
+                            </div>
+                            <div className="col-9">
+                                <InputText
+                                    id="jatuh_tempo"
+                                    name="jatuh_tempo"
+                                    value={'Setiap tanggal 25'}
+                                    readOnly
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-3">
+                                <p>Deskripsi</p>
+                            </div>
+                            <div className="col-9">
+                                <Dropdown
+                                    id="deskripsi"
+                                    name="deskripsi"
+                                    placeholder="Silahkan pilih  "
+                                    value={formik.values.deskripsi || null}
+                                    options={[
+                                        { label: 'Pengajuan Baru', value: 'Pengajuan Baru' },
+                                        { label: 'Pengajuan Ulang', value: 'Pengajuan Ulang' }
+                                    ]}
+                                    onChange={(e) => {
+                                        formik.setFieldValue('deskripsi', e.target.value);
+                                    }}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-3">
+                                <p>Status</p>
+                            </div>
+                            <div className="col-9">
+                                <Dropdown
+                                    id="status"
+                                    name="status"
+                                    placeholder="Silahkan pilih "
+                                    value={formik.values.status || null}
+                                    options={[
+                                        { label: 'Diterima', value: 'Diterima' },
+                                        { label: 'Ditolak', value: 'Ditolak' }
+                                    ]}
+                                    onChange={(e) => {
+                                        formik.setFieldValue('status', e.target.value);
+                                    }}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-12 flex justify-content-center">
+                                <Button type="submit" label="Save" size="small" severity="success" />
+                            </div>
                         </div>
-                        <div className="col-3">
-                            <p>TTL</p>
+                    </form>
+                )}
+            {
+
+                props.formCondition === 'Pengajuan' && (
+                    <form className='form w-100' onSubmit={handleSubmitCreate}>
+                        <div className="grid">
+                            <div className="col-3">
+                                <p>Anggota</p>
+                            </div>
+                            <div className="col-9">
+                                <Dropdown
+                                    id="anggota"
+                                    name="anggota"
+                                    placeholder="Pilih Nama Anggota"
+                                    value={formik.values.anggota || ''}
+                                    options={dropdownOptions}
+                                    onChange={(e) => {
+                                        formik.setFieldValue('anggota', e.target.value);
+                                    }}
+                                    className={clsx(
+                                        'w-full form-control bg-transparent',
+                                        { 'is-invalid': formik.touched.anggota && formik.errors.anggota },
+                                        { 'is-valid': formik.touched.anggota && !formik.errors.anggota }
+                                    )}
+                                />
+                            </div>
+                            <div className="col-3">
+                                <p>Tanggal Pinjaman</p>
+                            </div>
+                            <div className="col-9">
+                                <InputText
+                                    id="tgl_pinjaman"
+                                    name="tgl_pinjaman"
+                                    placeholder="Masukkan Tanggal Pinjaman"
+                                    value={formik.values.tgl_pinjaman || ''}
+                                    onChange={(e) => {
+                                        formik.setFieldValue('tgl_pinjaman', e.target.value);
+                                    }}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-3">
+                                <p>Total Pinjaman</p>
+                            </div>
+                            <div className="col-9">
+                                <InputNumber
+                                    id="pinjaman"
+                                    name="pinjaman"
+                                    placeholder="Masukkan Nominal Pinjaman"
+                                    value={formik.values.pinjaman || ''}
+                                    onChange={(e) => {
+                                        formik.setFieldValue('pinjaman', e.value);
+                                    }}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-3">
+                                <p>Bunga</p>
+                            </div>
+                            <div className="col-9">
+                                <InputText
+                                    id="bunga"
+                                    name="bunga"
+                                    value={'1,5'}
+                                    readOnly // membuatnya menjadi readonly
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-3">
+                                <p>Tenor</p>
+                            </div>
+                            <div className="col-9">
+                                <Dropdown
+                                    id="tenor"
+                                    name="tenor"
+                                    placeholder="Pilih tenor yang diinginkan"
+                                    optionLabel="label"
+                                    value={formik.values.tenor || null}
+                                    options={[
+                                        { label: 'Cicilan 6 Bulan', value: (6) },
+                                        { label: 'Cicilan 12 Bulan', value: (12) }
+                                    ]}
+                                    onChange={(e) => {
+                                        formik.setFieldValue('tenor', e.target.value);
+                                    }}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-3">
+                                <p>Jatuh Tempo</p>
+                            </div>
+                            <div className="col-9">
+                                <InputText
+                                    id="jatuh_tempo"
+                                    name="jatuh_tempo"
+                                    value={'Setiap tanggal 25'}
+                                    readOnly
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-3">
+                                <p>Deskripsi</p>
+                            </div>
+                            <div className="col-9">
+                                <Dropdown
+                                    id="deskripsi"
+                                    name="deskripsi"
+                                    placeholder="Masukkan "
+                                    value={formik.values.deskripsi || ''}
+                                    options={[
+                                        { label: 'Pengajuan Baru', value: 'Pengajuan Baru' },
+                                        { label: 'Pengajuan Ulang', value: 'Pengajuan Ulang' }
+                                    ]}
+                                    onChange={(e) => {
+                                        formik.setFieldValue('deskripsi', e.target.value);
+                                    }}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-3">
+                                <p>Status</p>
+                            </div>
+                            <div className="col-9">
+                                <Dropdown
+                                    id="status"
+                                    name="status"
+                                    placeholder="Masukkan "
+                                    value={formik.values.status || ''}
+                                    options={[
+                                        { label: 'Diterima', value: 'Diterima' },
+                                        { label: 'Ditolak', value: 'Ditolak' }
+                                    ]}
+                                    onChange={(e) => {
+                                        formik.setFieldValue('status', e.target.value);
+                                    }}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="col-12 flex justify-content-center">
+                                <Button type="submit" label="Save" size="small" severity="success" />
+                            </div>
                         </div>
-                        <div className="col-9">
-                            <InputText
-                                id="ttl"
-                                name="ttl"
-                                placeholder="Masukkan Tempat Tanggal Lahir"
-                                value={formik.values.ttl || ''}
-                                onChange={(e) => {
-                                    formik.setFieldValue('ttl', e.target.value);
-                                }}
-                                className="w-full"
-                            />
+                        showConfirmation (
+                        <div className="grid flex justify-content-center align-items-center">
+                            <div className="col-12 text-center">
+                                Apakah data sudah benar ? <strong>{props.selectedData?.name}</strong> ?
+                            </div>
+                            <div className="col-12 text-center">
+                                <span className="p-buttonset">
+                                    <Button
+                                        label="No"
+                                        severity='secondary'
+                                        icon="pi pi-times"
+                                        size="small"
+                                        onClick={handleNo}
+                                    />
+                                    <Button
+                                        label="Yes"
+                                        severity='danger'
+                                        icon="pi pi-trash"
+                                        size="small"
+                                        onClick={handleYes}
+                                    />
+                                </span>
+                            </div>
                         </div>
-                        <div className="col-3">
-                            <p>Alamat</p>
-                        </div>
-                        <div className="col-9">
-                            <InputText
-                                id="alamat"
-                                name="alamat"
-                                placeholder="Masukkan Alamat sesuai KTP"
-                                value={formik.values.alamat || ''}
-                                onChange={(e) => {
-                                    formik.setFieldValue('alamat', e.target.value);
-                                }}
-                                className="w-full"
-                            />
-                        </div>
-                        <div className="col-3">
-                            <p>Departemen</p>
-                        </div>
-                        <div className="col-9">
-                            <Dropdown
-                                id="departemen"
-                                name="departemen"
-                                placeholder="Pilih Jenis Departemen "
-                                optionLabel="label"
-                                value={formik.values.departemen || null}
-                                options={[
-                                    { label: 'Service', value: 'Service' },
-                                    { label: 'Admin', value: 'Admin' },
-                                    { label: 'Warehouse', value: 'Warehouse' },
-                                    { label: 'Sales', value: 'Sales' },
-                                    { label: 'SHE', value: 'SHE' }
-                                ]}
-                                onChange={(e) => {
-                                    formik.setFieldValue('departemen', e.value);
-                                }}
-                                className="w-full"
-                            />
-                        </div>
-                        <div className="col-3">
-                            <p>Jabatan</p>
-                        </div>
-                        <div className="col-9">
-                            <Dropdown
-                                id="jabatan"
-                                name="jabatan"
-                                placeholder="Pilih Jabatan Sekarang"
-                                optionLabel="label"
-                                value={formik.values.jabatan || ''}
-                                options={[
-                                    { label: 'Service Technician', value: 'Service Technician' },
-                                    { label: 'Service Coordinator', value: 'Service Coordinator' },
-                                    { label: 'Service Supervisor', value: 'Service Supervisor' },
-                                    { label: 'Service Manager', value: 'Service Manager' },
-                                    { label: 'Branch Manager', value: 'Branch Manager' },
-                                    { label: 'Service Planner', value: 'Service Planner' },
-                                    { label: 'Credit Control', value: 'Credit Control' },
-                                    { label: 'Admin', value: 'Admin' },
-                                    { label: 'Store Keeper', value: 'Store Keeper' },
-                                    { label: 'Customer Development Executive', value: 'Customer Development Executive' },
-                                    { label: 'Customer Development Manager', value: 'Customer Development Manager' }
-                                ]}
-                                onChange={(e) => {
-                                    formik.setFieldValue('jabatan', e.target.value);
-                                }}
-                                className="w-full"
-                            />
-                        </div>
-                        <div className="col-3">
-                            <p>Golongan</p>
-                        </div>
-                        <div className="col-9">
-                            <InputText
-                                id="golongan"
-                                name="golongan"
-                                value={formik.values.golongan || ''}
-                                readOnly // membuatnya menjadi readonly
-                                className="w-full"
-                            />
-                        </div>
-                        <div className="col-3">
-                            <p>Divisi</p>
-                        </div>
-                        <div className="col-9">
-                            <Dropdown
-                                id="divisi"
-                                name="divisi"
-                                placeholder="Pilih Divisi yang sesuai"
-                                optionLabel="label"
-                                value={formik.values.divisi || null}
-                                options={[
-                                    { label: 'Pest Control (PT. Rentokil Indonesia)', value: 'Pest Control (PT. Rentokil Indonesia)' },
-                                    { label: 'Hygiene (PT. Calmic Indonesia)', value: '(PT. Calmic Indonesia)' },
-                                ]}
-                                onChange={(e) => {
-                                    formik.setFieldValue('divisi', e.value);
-                                }}
-                                className="w-full"
-                            />
-                        </div>
-                        <div className="col-3">
-                            <p>Status Karyawan</p>
-                        </div>
-                        <div className="col-9">
-                            <Dropdown
-                                id="status_karyawan"
-                                name="status_karyawan"
-                                placeholder="Pilih Status Pekerjaan"
-                                optionLabel="label"
-                                value={formik.values.status || null}
-                                options={[
-                                    { label: 'PKWTT', value: 'PKWTT' },
-                                ]}
-                                onChange={(e) => {
-                                    formik.setFieldValue('status_karyawan', e.target.value);
-                                }}
-                                className="w-full"
-                            />
-                        </div>
-                        <div className="col-3">
-                            <p>Deskripsi</p>
-                        </div>
-                        <div className="col-9">
-                            <InputText
-                                id="deskripsi"
-                                name="deskripsi"
-                                placeholder="Masukkan alasan mendaftar"
-                                value={formik.values.deskripsi || ''}
-                                onChange={(e) => {
-                                    formik.setFieldValue('deskripsi', e.target.value);
-                                }}
-                                className="w-full"
-                            />
-                        </div>
-                        <div className="col-12 flex justify-content-center">
-                            <Button type="submit" label="Save" size="small" severity="success" />
-                        </div>
-                    </div>
-                </form>
-            }
+                        )
+                    </form>
+                )}
         </div>
     )
 }
 
-export default FormAnggota
+export default FormPinjaman

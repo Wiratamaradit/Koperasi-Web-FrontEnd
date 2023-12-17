@@ -9,7 +9,7 @@ import {Dropdown} from "primereact/dropdown";
 
 type TTablePinjaman = {
     data: any;
-    anggotaList: any;
+    pinjamanList: any;
     loading: boolean;
     setDialogForm: (data: boolean) => void;
     setFormCondition: (data: string) => void;
@@ -19,35 +19,40 @@ type TTablePinjaman = {
 const TablePinjaman = (props: TTablePinjaman) => {
     const [first, setFirst] = useState(0);
     const [rows, setRows] = useState(5);
-    const [selectedAnggota, setSelectedAnggota] = useState<any>(5);
+    const [selectedPinjaman, setSelectedPinjaman] = useState<any>(5);
 
-    const transformed = props.anggotaList.map((item: any) => {
-        const nameParts = item.name.split(" ").slice(0, 2);
-        const transformedItem = {
-            name: nameParts.join(" "),
-            code: item.id
-        };
-        return transformedItem;
+    const transformed = props.pinjamanList.map((item: any) => {
+        if (item && item.anggotas && typeof item.anggotas.name === 'string') {
+            const nameParts = item.anggotas.name.split(" ").slice(0, 2);
+            const transformedItem = {
+                name: nameParts.join(" "),
+                code: item.id,
+            };
+            return transformedItem;
+        } else {
+            console.error("Invalid 'name' property:", item);
+            return null;
+        }
     });
 
     const startContent = (
         <>
             <Button
-                label="Create"
+                label="Pengajuan"
                 icon="pi pi-plus"
                 severity="success"
                 size="small"
                 onClick={() => {
-                    props.setFormCondition("Create");
+                    props.setFormCondition("Pengajuan");
                     props.setDialogForm(true);
                 }}
             />
             <Dropdown
-                value={selectedAnggota}
-                onChange={(e) => setSelectedAnggota(e.value)}
+                value={selectedPinjaman}
+                onChange={(e) => setSelectedPinjaman(e.value)}
                 options={transformed}
                 optionLabel="name"
-                placeholder="Cari Anggota"
+                placeholder="Cari Nama Anggota"
                 className="w-full md:w-14rem ml-2"
             />
         </>
@@ -95,8 +100,9 @@ const TablePinjaman = (props: TTablePinjaman) => {
                 scrollable
             >
                 <Column header="#" headerStyle={{width: '3rem'}} body={(data, options) => options.rowIndex + 1}/>
-                <Column field="anggotas.name" header="Anggota"/>
+                <Column field="id_anggota" header="Anggota"/>
                 <Column field="tgl_pinjaman" header="Tgl Pinjaman"/>
+                <Column field="anggotas.golongan" header="Golongan"/>
                 <Column field="pinjaman" header="Total Pinjaman"/>
                 <Column field="bunga" header="Bunga"/>
                 <Column field="tenor" header="Tenor"/>
@@ -105,6 +111,7 @@ const TablePinjaman = (props: TTablePinjaman) => {
                 <Column field="status" header="Status"/>
                 <Column body={crudButton}/>
             </DataTable>
+
             <Paginator
                 first={first}
                 rows={rows}

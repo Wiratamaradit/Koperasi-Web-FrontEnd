@@ -78,7 +78,7 @@ const Pendaftaran = () => {
                 />
                 <Panel header="Form">
                     <FormPendaftaran
-                        formCondition='Create'
+                        formCondition='Pendaftaran'
                         routeUrl='/master/anggota'
                         saveCreate={(data: TAnggota) => handleCreate(data)}
                         loadingButton={loading}

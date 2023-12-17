@@ -326,12 +326,12 @@ const FormAnggota = (props: TFormAnggota) => {
                                 name="status_karyawan"
                                 placeholder="Pilih Status Pekerjaan"
                                 optionLabel="label"
-                                value={formik.values.status || null}
+                                value={formik.values.status_karyawan || null}
                                 options={[
                                     { label: 'PKWTT', value: 'PKWTT' },
                                 ]}
                                 onChange={(e) => {
-                                    formik.setFieldValue('status_karyawan', e.target.value);
+                                    formik.setFieldValue('status_karyawan', e.value);
                                 }}
                                 className="w-full"
                             />

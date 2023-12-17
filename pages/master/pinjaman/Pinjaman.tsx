@@ -1,28 +1,46 @@
-import {MenuItem} from "primereact/menuitem";
-import {Card} from "primereact/card";
+import { MenuItem } from "primereact/menuitem";
+import { Card } from "primereact/card";
 import FullLayout from "../../../src/layouts/full/FullLayout";
 import PageContainer from "../../../src/components/container/PageContainer";
 import BreadcrumbBase from "../../../src/base/components/BaseBreadCrumb/BaseBreadCrumb";
 import withSessionCheck from "../../../src/base/utils/WithAuth";
-import React, {useEffect, useRef, useState} from "react";
-import {Toast} from "primereact/toast";
-import {Dialog} from "primereact/dialog";
+import React, { useEffect, useRef, useState } from "react";
+import { Toast } from "primereact/toast";
+import { Dialog } from "primereact/dialog";
 import TablePinjaman from "../../../src/components-koperasi/master/pinjaman/TablePinjaman";
-import {deletePinjaman, listPinjaman, TPinjaman, updatePinjaman} from "../../../src/service/master/pinjaman";
-import {listAnggota} from "../../../src/service/master/anggota";
+import { createPinjaman, deletePinjaman, listPinjaman, TPinjaman, updatePinjaman } from "../../../src/service/master/pinjaman";
+import { listAnggota, TAnggota } from "../../../src/service/master/anggota";
+import FormPinjaman from "../../../src/components-koperasi/master/pinjaman/FormPinjaman";
+import router from "next/router";
 
-const Anggota = () => {
+const Pinjaman = () => {
     const breadcrumbItems: MenuItem[] = [
-        {label: 'Pinjaman', url: '/master/pinjaman'},
+        { label: 'Pinjaman', url: '/master/pinjaman' },
     ];
     const toast = useRef<Toast | null>(null);
     const [loading, setLoading] = useState<boolean>(false)
     const [dialogForm, setDialogForm] = useState<boolean>(false)
 
     const [list, setLList] = useState<[] | any>([])
-    const [anggotaList, setAnggotaList] = useState<[] | any>([])
+    const [pinjamanList, setPinjamanList] = useState<[] | any>([])
     const [formCondition, setFormCondition] = useState<string>('')
     const [selectedData, setSelectedData] = useState<any>()
+
+    const [anggotaList, setAnggotaList] = useState<[] | any>([]);
+
+    const getAnggota = async () => {
+        try {
+            const response = await listAnggota();
+            setAnggotaList(response.data.data);
+        } catch (error: any) {
+            toast.current!.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: `${error.response.data.message}`,
+                life: 3000
+            });
+        }
+    };
 
     const getList = async () => {
         try {
@@ -38,20 +56,6 @@ const Anggota = () => {
                 life: 3000
             });
             setLoading(false)
-        }
-    }
-
-    const getAnggota = async () => {
-        try {
-            const response = await listAnggota()
-            setAnggotaList(response.data.data)
-        } catch (error: any) {
-            toast.current!.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: `${error.response.data.message}`,
-                life: 3000
-            });
         }
     }
 
@@ -98,6 +102,42 @@ const Anggota = () => {
             setLoading(false)
         }
     }
+    const handleCreate = async (data: TPinjaman) => {
+        try {
+            setLoading(true)
+            const response = await createPinjaman({
+                id_anggota: data.id_anggota,
+                tgl_pinjaman: data.tgl_pinjaman,
+                pinjaman: data.pinjaman,
+                bunga: data.bunga,
+                tenor: data.tenor,
+                jatuh_tempo: data.jatuh_tempo,
+                deskripsi: data.deskripsi,
+                status: data.status
+            })
+            toast.current!.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: `${response.data.message}`,
+                life: 3000
+            });
+            setLoading(false)
+            setTimeout(() => {
+                router.push('/master/pinjaman')
+            }, 2000)
+    
+        } catch (error) {
+            console.error("Error creating pinjaman:", error);
+            toast.current!.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to create pinjaman.',
+                life: 3000
+            });
+    
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         getList()
@@ -107,36 +147,45 @@ const Anggota = () => {
     return (
         <FullLayout>
             <PageContainer title="Pinjaman">
-                <Toast ref={toast}/>
+                <Toast ref={toast} />
                 <Card
                     title="Pinjaman"
                     className="mb-2"
-                    subTitle={<BreadcrumbBase items={breadcrumbItems}/>}
+                    subTitle={<BreadcrumbBase items={breadcrumbItems} />}
                     pt={{
-                        body: {className: 'border-round border-200 border-2 surface-overlay'},
-                        title: {className: 'ml-3 mt-1 text-xl'},
-                        subTitle: {className: 'mb-0'},
+                        body: { className: 'border-round border-200 border-2 surface-overlay' },
+                        title: { className: 'ml-3 mt-1 text-xl' },
+                        subTitle: { className: 'mb-0' },
                     }}
                 />
                 <TablePinjaman
                     data={list}
-                    anggotaList={anggotaList}
+                    pinjamanList={pinjamanList}
                     loading={loading}
                     setDialogForm={(data) => setDialogForm(data)}
                     setFormCondition={(data) => setFormCondition(data)}
                     setSelectedData={(data) => setSelectedData(data)}
                 />
                 <Dialog
-                    header={formCondition + ' Data ' + (selectedData ? selectedData?.id_anggota : '')}
+                    header={formCondition + ' Pinjaman ' + (selectedData ? selectedData?.anggotas.name : '')}
                     visible={dialogForm}
                     onHide={() => {
                         setFormCondition('')
                         setDialogForm(false)
                         setSelectedData(null)
                     }}
-                    style={{width: '30vw'}}
+                    style={{ width: '30vw' }}
                 >
-
+                    <FormPinjaman
+                        formCondition={formCondition}
+                        selectedData={selectedData}
+                        setDialogForm={(data: boolean) => setDialogForm(data)}
+                        saveUpdate={(data: TPinjaman, id: number) => handleUpdate(data, id)}
+                        saveDelete={(id: number) => handleDelete(id)}
+                        saveCreate={(data: TPinjaman) => handleCreate(data)}
+                        pinjamanList={pinjamanList}
+                        anggotaList={anggotaList}
+                    />
 
                 </Dialog>
             </PageContainer>
@@ -144,4 +193,4 @@ const Anggota = () => {
     )
 }
 
-export default withSessionCheck(Anggota)
+export default withSessionCheck(Pinjaman)

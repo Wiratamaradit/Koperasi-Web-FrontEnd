@@ -58,10 +58,10 @@ const FormPendaftaran = (props: TFormPendaftaran) => {
         validationSchema: schema,
         onSubmit: async (values, { setStatus, setSubmitting }) => {
             try {
-                (props.formCondition === "Create")
+                (props.formCondition === "Pendaftaran")
                 props.saveCreate!(values);
             } catch (error) {
-                (props.formCondition === "Create")
+                (props.formCondition === "Pendaftaran")
                 setSubmitting(false);
 
             }
