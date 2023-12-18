@@ -1,8 +1,8 @@
 import axios from "axios";
 
 export type TPinjaman = {
-    id_pinjaman?: number;
-    id_anggota?: number;
+    id?: number;
+    anggotaId: number;
     tgl_pinjaman: string;
     pinjaman: any;
     bunga: string;
@@ -27,13 +27,13 @@ export function listPinjaman() {
     return axios.get(URL_PINJAMAN_LIST);
 }
 
-export function detailPinjaman(id_pinjaman: any) {
-    return axios.get(URL_PINJAMAN_Detail + `/${id_pinjaman}`)
+export function detailPinjaman(id: any) {
+    return axios.get(URL_PINJAMAN_Detail + `/${id}`)
 }
 
 export function createPinjaman(data: TPinjaman) {
     return axios.post(URL_PINJAMAN_CREATE, {
-        anggota: data.id_anggota,
+        anggotaId: data.anggotaId,
         tgl_pinjaman: data.tgl_pinjaman,
         pinjaman: data.pinjaman,
         bunga: data.bunga,
@@ -44,9 +44,9 @@ export function createPinjaman(data: TPinjaman) {
     });
 }
 
-export function updatePinjaman(data: TPinjaman, id_pinjaman: any) {
-    return axios.put(URL_PINJAMAN_UPDATE + `/${id_pinjaman}`, {
-        anggota: data.id_anggota,
+export function updatePinjaman(data: TPinjaman, id: any) {
+    return axios.put(URL_PINJAMAN_UPDATE + `/${id}`, {
+        anggotaId: data.anggotaId,
         tgl_pinjaman: data.tgl_pinjaman,
         pinjaman: data.pinjaman,
         bunga: data.bunga,
@@ -57,6 +57,6 @@ export function updatePinjaman(data: TPinjaman, id_pinjaman: any) {
     });
 }
 
-export function deletePinjaman(id_pinjaman: any) {
-    return axios.delete(URL_PINJAMAN_DELETE + `/${id_pinjaman}`)
+export function deletePinjaman(id: any) {
+    return axios.delete(URL_PINJAMAN_DELETE + `/${id}`)
 }

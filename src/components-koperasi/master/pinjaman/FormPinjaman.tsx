@@ -23,7 +23,7 @@ type TFormPinjaman = {
 }
 
 const schema = Yup.object().shape({
-    id: Yup.string().required('id is required'),
+    anggota: Yup.string().required('id is required'),
     tgl_pinjaman: Yup.string(),
     pinjaman: Yup.string(),
     bunga: Yup.string(),
@@ -34,7 +34,7 @@ const schema = Yup.object().shape({
 })
 
 const initialValues = {
-    id: '',
+    anggota: '',
     tgl_pinjaman: '',
     pinjaman: '',
     bunga: '',
@@ -63,7 +63,7 @@ const FormPinjaman = (props: TFormPinjaman) => {
     useEffect(() => {
         if (props.formCondition === 'Update') {
             setInitData({
-                anggota: props.selectedData.anggotas?.id || '',
+                anggota: props.selectedData.anggotas?.name || '',
                 tgl_pinjaman: props.selectedData.tgl_pinjaman,
                 golongan: props.selectedData.anggotas?.golongan || '',
                 pinjaman: props.selectedData.pinjaman,
@@ -89,8 +89,10 @@ const FormPinjaman = (props: TFormPinjaman) => {
                     props.saveCreate!(values);
                 } else if (props.formCondition === "Update") {
                     props.saveUpdate!(values, props.selectedData.id);
+                    props.setDialogForm(false)
                 }
             } catch (error) {
+                (props.formCondition === 'Update')
                 setSubmitting(false);
             }
         },
@@ -129,7 +131,7 @@ const FormPinjaman = (props: TFormPinjaman) => {
                 props.formCondition === 'Delete' && (
                     <div className="grid flex justify-content-center align-items-center">
                         <div className="col-12 text-center">
-                            Do you want to delete <strong>{props.selectedData?.id_pinjaman}</strong> ?
+                            Do you want to delete <strong>{props.selectedData?.id}</strong> ?
                         </div>
                         <div className="col-12 text-center">
                             <span className="p-buttonset">
@@ -149,7 +151,7 @@ const FormPinjaman = (props: TFormPinjaman) => {
                                     size="small"
                                     onClick={() => {
                                         if (props.saveDelete) {
-                                            props.saveDelete(props.selectedData.id_pinjaman);
+                                            props.saveDelete(props.selectedData.id);
                                             props.setDialogForm(false)
                                         }
                                     }}
@@ -166,21 +168,26 @@ const FormPinjaman = (props: TFormPinjaman) => {
                                 <p>Anggota</p>
                             </div>
                             <div className="col-9">
-                                <Dropdown
-                                    id="anggota"
-                                    name="anggota"
-                                    placeholder="Pilih Nama Anggota"
-                                    value={formik.values.anggota || ''}
-                                    options={dropdownOptions}
-                                    onChange={(e) => {
-                                        formik.setFieldValue('anggota', e.target.value);
-                                    }}
+                                <div
                                     className={clsx(
-                                        'w-full form-control bg-transparent',
+                                        ' w-ful form-control bg-transparent',
                                         { 'is-invalid': formik.touched.anggota && formik.errors.anggota },
-                                        { 'is-valid': formik.touched.anggota && !formik.errors.anggota }
+                                        {
+                                            'is-valid': formik.touched.anggota && !formik.errors.anggota,
+                                        }
                                     )}
-                                />
+                                >
+                                    <InputText
+                                        id="anggota"
+                                        name="anggota"
+                                        value={formik.values.anggota || ''}
+                                        readOnly
+                                        onChange={(e) => {
+                                            formik.setFieldValue('anggota', e.target.value);
+                                        }}
+                                        className="w-full"
+                                    />
+                                </div>
                             </div>
                             <div className="col-3">
                                 <p>Tanggal Pinjaman</p>
@@ -441,31 +448,6 @@ const FormPinjaman = (props: TFormPinjaman) => {
                                 <Button type="submit" label="Save" size="small" severity="success" />
                             </div>
                         </div>
-                        showConfirmation (
-                        <div className="grid flex justify-content-center align-items-center">
-                            <div className="col-12 text-center">
-                                Apakah data sudah benar ? <strong>{props.selectedData?.name}</strong> ?
-                            </div>
-                            <div className="col-12 text-center">
-                                <span className="p-buttonset">
-                                    <Button
-                                        label="No"
-                                        severity='secondary'
-                                        icon="pi pi-times"
-                                        size="small"
-                                        onClick={handleNo}
-                                    />
-                                    <Button
-                                        label="Yes"
-                                        severity='danger'
-                                        icon="pi pi-trash"
-                                        size="small"
-                                        onClick={handleYes}
-                                    />
-                                </span>
-                            </div>
-                        </div>
-                        )
                     </form>
                 )}
         </div>

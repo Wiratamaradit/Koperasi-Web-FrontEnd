@@ -63,7 +63,7 @@ const Pinjaman = () => {
         try {
             setLoading(true)
             const response = await updatePinjaman({
-                id_anggota: data.id_anggota,
+                anggotaId: data.anggotaId,
                 tgl_pinjaman: data.tgl_pinjaman,
                 pinjaman: data.pinjaman,
                 bunga: data.bunga,
@@ -79,6 +79,7 @@ const Pinjaman = () => {
                 life: 3000
             });
             getList()
+            getAnggota()
             setLoading(false)
         } catch (error) {
             setLoading(false)
@@ -96,7 +97,7 @@ const Pinjaman = () => {
                 life: 3000
             });
             getList()
-
+            getAnggota()
             setLoading(false)
         } catch (error) {
             setLoading(false)
@@ -106,7 +107,7 @@ const Pinjaman = () => {
         try {
             setLoading(true)
             const response = await createPinjaman({
-                id_anggota: data.id_anggota,
+                anggotaId: data.anggotaId,
                 tgl_pinjaman: data.tgl_pinjaman,
                 pinjaman: data.pinjaman,
                 bunga: data.bunga,

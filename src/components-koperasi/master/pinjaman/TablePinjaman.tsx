@@ -100,14 +100,15 @@ const TablePinjaman = (props: TTablePinjaman) => {
                 scrollable
             >
                 <Column header="#" headerStyle={{width: '3rem'}} body={(data, options) => options.rowIndex + 1}/>
-                <Column field="id_anggota" header="Anggota"/>
+                <Column field="anggotas.name" header="Anggota"/>
                 <Column field="tgl_pinjaman" header="Tgl Pinjaman"/>
                 <Column field="anggotas.golongan" header="Golongan"/>
                 <Column field="pinjaman" header="Total Pinjaman"/>
-                <Column field="bunga" header="Bunga"/>
+                <Column field="bunga" header="Bunga (1,5%)"/>
                 <Column field="tenor" header="Tenor"/>
                 <Column field="jatuh_tempo" header="Jatuh Tempo"/>
                 <Column field="deskripsi" header="Deskripsi"/>
+                <Column field="angsuran" header="Angsuran/bulan"/>
                 <Column field="status" header="Status"/>
                 <Column body={crudButton}/>
             </DataTable>
