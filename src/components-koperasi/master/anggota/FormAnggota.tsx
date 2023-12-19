@@ -1,12 +1,12 @@
 import * as Yup from "yup";
-import { useFormik } from "formik";
-import { useEffect, useState } from "react";
-import { InputText } from "primereact/inputtext";
+import {useFormik} from "formik";
+import {useEffect, useState} from "react";
+import {InputText} from "primereact/inputtext";
 import clsx from "clsx";
-import { InputNumber } from "primereact/inputnumber";
-import { Button } from "primereact/button";
-import { TAnggota } from "../../../service/master/anggota";
-import { Dropdown } from "primereact/dropdown";
+import {InputNumber} from "primereact/inputnumber";
+import {Button} from "primereact/button";
+import {TAnggota} from "../../../service/master/anggota";
+import {Dropdown} from "primereact/dropdown";
 
 type TFormAnggota = {
     formCondition: string,
@@ -76,16 +76,16 @@ const FormAnggota = (props: TFormAnggota) => {
     const formik = useFormik({
         initialValues: initData,
         validationSchema: schema,
-        onSubmit: async (values, { setStatus, setSubmitting }) => {
+        onSubmit: async (values, {setStatus, setSubmitting}) => {
             try {
-                (props.formCondition === 'Update')
-                props.saveUpdate!(values, props.selectedData.id)
-                props.setDialogForm(false)
-
+                if (props.formCondition === 'Update') {
+                    props.saveUpdate!(values, props.selectedData.id)
+                   cc
+                }
             } catch (error) {
-                (props.formCondition === 'Update')
-
-                setSubmitting(false)
+                if (props.formCondition === 'Update') {
+                    setSubmitting(false)
+                }
             }
         }
     })
@@ -111,6 +111,8 @@ const FormAnggota = (props: TFormAnggota) => {
 
         formik.setFieldValue('golongan', selectedGolongan);
     }, [formik.values.jabatan]);
+
+    console.log(formik.touched)
 
     return (
         <div>
@@ -159,7 +161,7 @@ const FormAnggota = (props: TFormAnggota) => {
 
                                 className={clsx(
                                     ' w-ful form-control bg-transparent',
-                                    { 'is-invalid': formik.touched.nik && formik.errors.nik },
+                                    {'is-invalid': formik.touched.nik && formik.errors.nik},
                                     {
                                         'is-valid': formik.touched.nik && !formik.errors.nik,
                                     }
@@ -185,7 +187,7 @@ const FormAnggota = (props: TFormAnggota) => {
                             <div
                                 className={clsx(
                                     ' w-ful form-control bg-transparent',
-                                    { 'is-invalid': formik.touched.name && formik.errors.name },
+                                    {'is-invalid': formik.touched.name && formik.errors.name},
                                     {
                                         'is-valid': formik.touched.name && !formik.errors.name,
                                     }
@@ -244,11 +246,11 @@ const FormAnggota = (props: TFormAnggota) => {
                                 optionLabel="label"
                                 value={formik.values.departemen || null}
                                 options={[
-                                    { label: 'Service', value: 'Service' },
-                                    { label: 'Admin', value: 'Admin' },
-                                    { label: 'Warehouse', value: 'Warehouse' },
-                                    { label: 'Sales', value: 'Sales' },
-                                    { label: 'SHE', value: 'SHE' }
+                                    {label: 'Service', value: 'Service'},
+                                    {label: 'Admin', value: 'Admin'},
+                                    {label: 'Warehouse', value: 'Warehouse'},
+                                    {label: 'Sales', value: 'Sales'},
+                                    {label: 'SHE', value: 'SHE'}
                                 ]}
                                 onChange={(e) => {
                                     formik.setFieldValue('departemen', e.value);
@@ -267,17 +269,17 @@ const FormAnggota = (props: TFormAnggota) => {
                                 optionLabel="label"
                                 value={formik.values.jabatan || ''}
                                 options={[
-                                    { label: 'Service Technician', value: 'Service Technician' },
-                                    { label: 'Service Coordinator', value: 'Service Coordinator' },
-                                    { label: 'Service Supervisor', value: 'Service Supervisor' },
-                                    { label: 'Service Manager', value: 'Service Manager' },
-                                    { label: 'Branch Manager', value: 'Branch Manager' },
-                                    { label: 'Service Planner', value: 'Service Planner' },
-                                    { label: 'Credit Control', value: 'Credit Control' },
-                                    { label: 'Admin', value: 'Admin' },
-                                    { label: 'Store Keeper', value: 'Store Keeper' },
-                                    { label: 'Customer Development Executive', value: 'Customer Development Executive' },
-                                    { label: 'Customer Development Manager', value: 'Customer Development Manager' }
+                                    {label: 'Service Technician', value: 'Service Technician'},
+                                    {label: 'Service Coordinator', value: 'Service Coordinator'},
+                                    {label: 'Service Supervisor', value: 'Service Supervisor'},
+                                    {label: 'Service Manager', value: 'Service Manager'},
+                                    {label: 'Branch Manager', value: 'Branch Manager'},
+                                    {label: 'Service Planner', value: 'Service Planner'},
+                                    {label: 'Credit Control', value: 'Credit Control'},
+                                    {label: 'Admin', value: 'Admin'},
+                                    {label: 'Store Keeper', value: 'Store Keeper'},
+                                    {label: 'Customer Development Executive', value: 'Customer Development Executive'},
+                                    {label: 'Customer Development Manager', value: 'Customer Development Manager'}
                                 ]}
                                 onChange={(e) => {
                                     formik.setFieldValue('jabatan', e.target.value);
@@ -308,8 +310,11 @@ const FormAnggota = (props: TFormAnggota) => {
                                 optionLabel="label"
                                 value={formik.values.divisi || null}
                                 options={[
-                                    { label: 'Pest Control (PT. Rentokil Indonesia)', value: 'Pest Control (PT. Rentokil Indonesia)' },
-                                    { label: 'Hygiene (PT. Calmic Indonesia)', value: '(PT. Calmic Indonesia)' },
+                                    {
+                                        label: 'Pest Control (PT. Rentokil Indonesia)',
+                                        value: 'Pest Control (PT. Rentokil Indonesia)'
+                                    },
+                                    {label: 'Hygiene (PT. Calmic Indonesia)', value: '(PT. Calmic Indonesia)'},
                                 ]}
                                 onChange={(e) => {
                                     formik.setFieldValue('divisi', e.value);
@@ -328,7 +333,7 @@ const FormAnggota = (props: TFormAnggota) => {
                                 optionLabel="label"
                                 value={formik.values.status_karyawan || null}
                                 options={[
-                                    { label: 'PKWTT', value: 'PKWTT' },
+                                    {label: 'PKWTT', value: 'PKWTT'},
                                 ]}
                                 onChange={(e) => {
                                     formik.setFieldValue('status_karyawan', e.value);
@@ -352,7 +357,7 @@ const FormAnggota = (props: TFormAnggota) => {
                             />
                         </div>
                         <div className="col-12 flex justify-content-center">
-                            <Button type="submit" label="Save" size="small" severity="success" />
+                            <Button type="submit" label="Save" size="small" severity="success"/>
                         </div>
                     </div>
                 </form>

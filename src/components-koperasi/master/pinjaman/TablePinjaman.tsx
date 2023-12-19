@@ -43,7 +43,7 @@ const TablePinjaman = (props: TTablePinjaman) => {
                 severity="success"
                 size="small"
                 onClick={() => {
-                    props.setFormCondition("Pengajuan");
+                    props.setFormCondition("Create");
                     props.setDialogForm(true);
                 }}
             />
@@ -100,6 +100,7 @@ const TablePinjaman = (props: TTablePinjaman) => {
                 scrollable
             >
                 <Column header="#" headerStyle={{width: '3rem'}} body={(data, options) => options.rowIndex + 1}/>
+                <Column field="kode" header="Code"/>
                 <Column field="anggotas.name" header="Anggota"/>
                 <Column field="tgl_pinjaman" header="Tgl Pinjaman"/>
                 <Column field="anggotas.golongan" header="Golongan"/>
@@ -109,7 +110,6 @@ const TablePinjaman = (props: TTablePinjaman) => {
                 <Column field="jatuh_tempo" header="Jatuh Tempo"/>
                 <Column field="deskripsi" header="Deskripsi"/>
                 <Column field="angsuran" header="Angsuran/bulan"/>
-                <Column field="status" header="Status"/>
                 <Column body={crudButton}/>
             </DataTable>
 

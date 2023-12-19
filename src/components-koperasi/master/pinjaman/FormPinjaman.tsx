@@ -1,13 +1,13 @@
 import * as Yup from "yup";
-import { useFormik } from "formik";
-import { useEffect, useRef, useState } from "react";
-import { InputText } from "primereact/inputtext";
+import {useFormik} from "formik";
+import {useEffect, useRef, useState} from "react";
+import {InputText} from "primereact/inputtext";
 import clsx from "clsx";
-import { InputNumber } from "primereact/inputnumber";
-import { Button } from "primereact/button";
-import { Dropdown } from "primereact/dropdown";
-import { TPinjaman } from "../../../service/master/pinjaman";
-import { Toast } from "primereact/toast";
+import {InputNumber} from "primereact/inputnumber";
+import {Button} from "primereact/button";
+import {Dropdown} from "primereact/dropdown";
+import {TPinjaman} from "../../../service/master/pinjaman";
+import {Toast} from "primereact/toast";
 
 type TFormPinjaman = {
     formCondition: string,
@@ -23,53 +23,43 @@ type TFormPinjaman = {
 }
 
 const schema = Yup.object().shape({
-    anggota: Yup.string().required('id is required'),
-    tgl_pinjaman: Yup.string(),
-    pinjaman: Yup.string(),
-    bunga: Yup.string(),
-    tenor: Yup.string(),
+    anggotaId: Yup.object().shape({name: Yup.string(), code: Yup.string()}).required('anggota is required'),
+    tgl_pinjaman: Yup.string().required('tgl pinjaman is required'),
+    pinjaman: Yup.number().required('pinjaman is required'),
+    bunga: Yup.number(),
+    tenor: Yup.object().shape({name: Yup.string(), code: Yup.string()}).required('tenor is required'),
     jatuh_tempo: Yup.string(),
-    deskripsi: Yup.string(),
+    deskripsi: Yup.object().shape({name: Yup.string(), code: Yup.string()}).required('deskripsi is required'),
     status: Yup.string()
 })
 
 const initialValues = {
-    anggota: '',
-    tgl_pinjaman: '',
-    pinjaman: '',
-    bunga: '',
-    tenor: '',
-    jatuh_tempo: '',
-    deskripsi: '',
-    status: ''
+    anggotaId: null,
+    tgl_pinjaman: null,
+    pinjaman: null,
+    bunga: null,
+    tenor: null,
+    jatuh_tempo: null,
+    deskripsi: null,
+    status: null
 }
 
 const FormPinjaman = (props: TFormPinjaman) => {
-    const toast = useRef<Toast | null>(null);
-    const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
-    const [anggotaList, setAnggotaList] = useState([])
-
-    useEffect(() => {
-        console.log("anggotaList:", props.anggotaList);
-    }, [props.anggotaList]);
-
-    const dropdownOptions = (props.anggotaList || []).map((item: any) => {
-        const anggotaId = item.name || '';
-        return { label: anggotaId, value: anggotaId };
-    });
-
     const [initData, setInitData] = useState<any>(initialValues);
+    const dropdownOptions = (props.anggotaList || []).map((item: any) => {
+        return {name: item.name, code: item.id};
+    });
 
     useEffect(() => {
         if (props.formCondition === 'Update') {
             setInitData({
-                anggota: props.selectedData.anggotas?.name || '',
+                anggotaId: props.selectedData.anggotas?.code || '',
                 tgl_pinjaman: props.selectedData.tgl_pinjaman,
                 golongan: props.selectedData.anggotas?.golongan || '',
                 pinjaman: props.selectedData.pinjaman,
-                bunga: props.selectedData.bunga,
+                bunga: '1,5',
                 tenor: props.selectedData.tenor,
-                jatuh_tempo: props.selectedData.jatuh_tempo,
+                jatuh_tempo: 'Setiap tanggal 25',
                 deskripsi: props.selectedData.deskripsi,
                 status: props.selectedData.status
             })
@@ -83,10 +73,20 @@ const FormPinjaman = (props: TFormPinjaman) => {
     const formik = useFormik({
         initialValues: initData,
         validationSchema: schema,
-        onSubmit: async (values, { setStatus, setSubmitting }) => {
+        onSubmit: async (values, {setStatus, setSubmitting}) => {
             try {
-                if (props.formCondition === "Pengajuan") {
-                    props.saveCreate!(values);
+                if (props.formCondition === "Create") {
+                    props.saveCreate!({
+                        anggotaId: values.anggotaId?.code,
+                        tgl_pinjaman: values.tgl_pinjaman,
+                        pinjaman: values.pinjaman,
+                        bunga: 1.5,
+                        tenor: values.tenor?.code,
+                        jatuh_tempo: 'Setiap tanggal 25',
+                        deskripsi: values.deskripsi?.code,
+                        status: values.status
+                    });
+                    props.setDialogForm(false)
                 } else if (props.formCondition === "Update") {
                     props.saveUpdate!(values, props.selectedData.id);
                     props.setDialogForm(false)
@@ -98,32 +98,8 @@ const FormPinjaman = (props: TFormPinjaman) => {
         },
     });
 
-    const handleSubmitCreate = (e: { preventDefault: () => void; }) => {
-        e.preventDefault();
-        props.setDialogForm(false);
-    }
-
-    const handleYes = () => {
-        if (props.saveCreate) {
-            props.saveCreate(formik.values);
-        }
-
-        setInitData(initialValues);
-        setShowConfirmation(false);
-
-        if (toast.current) {
-            toast.current.show({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Data saved successfully',
-                life: 3000,
-            });
-        }
-    };
-
-    const handleNo = () => {
-        setShowConfirmation(false);
-    };
+    console.log(formik.values.anggotaId.code)
+    console.log(formik.errors)
 
     return (
         <div>
@@ -161,33 +137,26 @@ const FormPinjaman = (props: TFormPinjaman) => {
                     </div>
                 )}
             {
-                props.formCondition === 'Update' && (
+                (props.formCondition === "Create" || props.formCondition === "Update") && (
                     <form className='form w-100' onSubmit={formik.handleSubmit}>
                         <div className="grid">
                             <div className="col-3">
                                 <p>Anggota</p>
                             </div>
                             <div className="col-9">
-                                <div
-                                    className={clsx(
-                                        ' w-ful form-control bg-transparent',
-                                        { 'is-invalid': formik.touched.anggota && formik.errors.anggota },
-                                        {
-                                            'is-valid': formik.touched.anggota && !formik.errors.anggota,
-                                        }
-                                    )}
-                                >
-                                    <InputText
-                                        id="anggota"
-                                        name="anggota"
-                                        value={formik.values.anggota || ''}
-                                        readOnly
-                                        onChange={(e) => {
-                                            formik.setFieldValue('anggota', e.target.value);
-                                        }}
-                                        className="w-full"
-                                    />
-                                </div>
+                                <Dropdown
+                                    id="anggotaId"
+                                    name="anggotaId"
+                                    placeholder="Pilih Nama Anggota"
+                                    value={formik.values.anggotaId}
+                                    options={dropdownOptions}
+                                    optionLabel="name"
+                                    onChange={(e) => {
+                                        formik.setFieldValue('anggotaId', e.target.value);
+                                    }}
+                                    className='w-full'
+                                />
+                                {formik.errors.anggotaId && (<span style={{color: 'red'}}>{formik.errors.anggotaId}</span>)}
                             </div>
                             <div className="col-3">
                                 <p>Tanggal Pinjaman</p>
@@ -197,12 +166,14 @@ const FormPinjaman = (props: TFormPinjaman) => {
                                     id="tgl_pinjaman"
                                     name="tgl_pinjaman"
                                     placeholder="Masukkan Tanggal Pinjaman"
-                                    value={formik.values.tgl_pinjaman || ''}
+                                    value={formik.values.tgl_pinjaman}
                                     onChange={(e) => {
                                         formik.setFieldValue('tgl_pinjaman', e.target.value);
                                     }}
-                                    className="w-full"
+                                    className='w-full'
                                 />
+                                {formik.errors.tgl_pinjaman && (
+                                    <span style={{color: 'red'}}>{formik.errors.tgl_pinjaman}</span>)}
                             </div>
                             <div className="col-3">
                                 <p>Total Pinjaman</p>
@@ -212,12 +183,13 @@ const FormPinjaman = (props: TFormPinjaman) => {
                                     id="pinjaman"
                                     name="pinjaman"
                                     placeholder="Masukkan Nominal Pinjaman"
-                                    value={formik.values.pinjaman || ''}
+                                    value={formik.values.pinjaman}
                                     onChange={(e) => {
                                         formik.setFieldValue('pinjaman', e.value);
                                     }}
-                                    className="w-full"
+                                    className='w-full'
                                 />
+                                {formik.errors.pinjaman && (<span style={{color: 'red'}}>{formik.errors.pinjaman}</span>)}
                             </div>
                             <div className="col-3">
                                 <p>Bunga</p>
@@ -227,7 +199,7 @@ const FormPinjaman = (props: TFormPinjaman) => {
                                     id="bunga"
                                     name="bunga"
                                     value={'1,5'}
-                                    readOnly // membuatnya menjadi readonly
+                                    readOnly
                                     className="w-full"
                                 />
                             </div>
@@ -239,17 +211,18 @@ const FormPinjaman = (props: TFormPinjaman) => {
                                     id="tenor"
                                     name="tenor"
                                     placeholder="Pilih tenor yang diinginkan"
-                                    optionLabel="label"
-                                    value={formik.values.tenor || null}
+                                    value={formik.values.tenor}
                                     options={[
-                                        { label: 'Cicilan 6 Bulan', value: (6) },
-                                        { label: 'Cicilan 12 Bulan', value: (12) }
+                                        {name: 'Cicilan 6 Bulan', code: (6)},
+                                        {name: 'Cicilan 12 Bulan', code: (12)}
                                     ]}
+                                    optionLabel='name'
                                     onChange={(e) => {
                                         formik.setFieldValue('tenor', e.target.value);
                                     }}
-                                    className="w-full"
+                                    className='w-full'
                                 />
+                                {formik.errors.tenor && (<span style={{color: 'red'}}>{formik.errors.tenor}</span>)}
                             </div>
                             <div className="col-3">
                                 <p>Jatuh Tempo</p>
@@ -271,181 +244,21 @@ const FormPinjaman = (props: TFormPinjaman) => {
                                     id="deskripsi"
                                     name="deskripsi"
                                     placeholder="Silahkan pilih  "
-                                    value={formik.values.deskripsi || null}
+                                    value={formik.values.deskripsi}
                                     options={[
-                                        { label: 'Pengajuan Baru', value: 'Pengajuan Baru' },
-                                        { label: 'Pengajuan Ulang', value: 'Pengajuan Ulang' }
+                                        {name: 'Pengajuan Baru', code: 'Pengajuan Baru'},
+                                        {name: 'Pengajuan Ulang', code: 'Pengajuan Ulang'}
                                     ]}
+                                    optionLabel='name'
                                     onChange={(e) => {
                                         formik.setFieldValue('deskripsi', e.target.value);
                                     }}
-                                    className="w-full"
+                                    className='w-full'
                                 />
-                            </div>
-                            <div className="col-3">
-                                <p>Status</p>
-                            </div>
-                            <div className="col-9">
-                                <Dropdown
-                                    id="status"
-                                    name="status"
-                                    placeholder="Silahkan pilih "
-                                    value={formik.values.status || null}
-                                    options={[
-                                        { label: 'Diterima', value: 'Diterima' },
-                                        { label: 'Ditolak', value: 'Ditolak' }
-                                    ]}
-                                    onChange={(e) => {
-                                        formik.setFieldValue('status', e.target.value);
-                                    }}
-                                    className="w-full"
-                                />
+                                {formik.errors.deskripsi && (<span style={{color: 'red'}}>{formik.errors.deskripsi}</span>)}
                             </div>
                             <div className="col-12 flex justify-content-center">
-                                <Button type="submit" label="Save" size="small" severity="success" />
-                            </div>
-                        </div>
-                    </form>
-                )}
-            {
-
-                props.formCondition === 'Pengajuan' && (
-                    <form className='form w-100' onSubmit={handleSubmitCreate}>
-                        <div className="grid">
-                            <div className="col-3">
-                                <p>Anggota</p>
-                            </div>
-                            <div className="col-9">
-                                <Dropdown
-                                    id="anggota"
-                                    name="anggota"
-                                    placeholder="Pilih Nama Anggota"
-                                    value={formik.values.anggota || ''}
-                                    options={dropdownOptions}
-                                    onChange={(e) => {
-                                        formik.setFieldValue('anggota', e.target.value);
-                                    }}
-                                    className={clsx(
-                                        'w-full form-control bg-transparent',
-                                        { 'is-invalid': formik.touched.anggota && formik.errors.anggota },
-                                        { 'is-valid': formik.touched.anggota && !formik.errors.anggota }
-                                    )}
-                                />
-                            </div>
-                            <div className="col-3">
-                                <p>Tanggal Pinjaman</p>
-                            </div>
-                            <div className="col-9">
-                                <InputText
-                                    id="tgl_pinjaman"
-                                    name="tgl_pinjaman"
-                                    placeholder="Masukkan Tanggal Pinjaman"
-                                    value={formik.values.tgl_pinjaman || ''}
-                                    onChange={(e) => {
-                                        formik.setFieldValue('tgl_pinjaman', e.target.value);
-                                    }}
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="col-3">
-                                <p>Total Pinjaman</p>
-                            </div>
-                            <div className="col-9">
-                                <InputNumber
-                                    id="pinjaman"
-                                    name="pinjaman"
-                                    placeholder="Masukkan Nominal Pinjaman"
-                                    value={formik.values.pinjaman || ''}
-                                    onChange={(e) => {
-                                        formik.setFieldValue('pinjaman', e.value);
-                                    }}
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="col-3">
-                                <p>Bunga</p>
-                            </div>
-                            <div className="col-9">
-                                <InputText
-                                    id="bunga"
-                                    name="bunga"
-                                    value={'1,5'}
-                                    readOnly // membuatnya menjadi readonly
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="col-3">
-                                <p>Tenor</p>
-                            </div>
-                            <div className="col-9">
-                                <Dropdown
-                                    id="tenor"
-                                    name="tenor"
-                                    placeholder="Pilih tenor yang diinginkan"
-                                    optionLabel="label"
-                                    value={formik.values.tenor || null}
-                                    options={[
-                                        { label: 'Cicilan 6 Bulan', value: (6) },
-                                        { label: 'Cicilan 12 Bulan', value: (12) }
-                                    ]}
-                                    onChange={(e) => {
-                                        formik.setFieldValue('tenor', e.target.value);
-                                    }}
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="col-3">
-                                <p>Jatuh Tempo</p>
-                            </div>
-                            <div className="col-9">
-                                <InputText
-                                    id="jatuh_tempo"
-                                    name="jatuh_tempo"
-                                    value={'Setiap tanggal 25'}
-                                    readOnly
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="col-3">
-                                <p>Deskripsi</p>
-                            </div>
-                            <div className="col-9">
-                                <Dropdown
-                                    id="deskripsi"
-                                    name="deskripsi"
-                                    placeholder="Masukkan "
-                                    value={formik.values.deskripsi || ''}
-                                    options={[
-                                        { label: 'Pengajuan Baru', value: 'Pengajuan Baru' },
-                                        { label: 'Pengajuan Ulang', value: 'Pengajuan Ulang' }
-                                    ]}
-                                    onChange={(e) => {
-                                        formik.setFieldValue('deskripsi', e.target.value);
-                                    }}
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="col-3">
-                                <p>Status</p>
-                            </div>
-                            <div className="col-9">
-                                <Dropdown
-                                    id="status"
-                                    name="status"
-                                    placeholder="Masukkan "
-                                    value={formik.values.status || ''}
-                                    options={[
-                                        { label: 'Diterima', value: 'Diterima' },
-                                        { label: 'Ditolak', value: 'Ditolak' }
-                                    ]}
-                                    onChange={(e) => {
-                                        formik.setFieldValue('status', e.target.value);
-                                    }}
-                                    className="w-full"
-                                />
-                            </div>
-                            <div className="col-12 flex justify-content-center">
-                                <Button type="submit" label="Save" size="small" severity="success" />
+                                <Button type="submit" label="Save" size="small" severity="success"/>
                             </div>
                         </div>
                     </form>

@@ -1,21 +1,27 @@
-import { MenuItem } from "primereact/menuitem";
-import { Card } from "primereact/card";
+import {MenuItem} from "primereact/menuitem";
+import {Card} from "primereact/card";
 import FullLayout from "../../../src/layouts/full/FullLayout";
 import PageContainer from "../../../src/components/container/PageContainer";
 import BreadcrumbBase from "../../../src/base/components/BaseBreadCrumb/BaseBreadCrumb";
 import withSessionCheck from "../../../src/base/utils/WithAuth";
-import React, { useEffect, useRef, useState } from "react";
-import { Toast } from "primereact/toast";
-import { Dialog } from "primereact/dialog";
+import React, {useEffect, useRef, useState} from "react";
+import {Toast} from "primereact/toast";
+import {Dialog} from "primereact/dialog";
 import TablePinjaman from "../../../src/components-koperasi/master/pinjaman/TablePinjaman";
-import { createPinjaman, deletePinjaman, listPinjaman, TPinjaman, updatePinjaman } from "../../../src/service/master/pinjaman";
-import { listAnggota, TAnggota } from "../../../src/service/master/anggota";
+import {
+    createPinjaman,
+    deletePinjaman,
+    listPinjaman,
+    TPinjaman,
+    updatePinjaman
+} from "../../../src/service/master/pinjaman";
+import {listAnggota, TAnggota} from "../../../src/service/master/anggota";
 import FormPinjaman from "../../../src/components-koperasi/master/pinjaman/FormPinjaman";
 import router from "next/router";
 
 const Pinjaman = () => {
     const breadcrumbItems: MenuItem[] = [
-        { label: 'Pinjaman', url: '/master/pinjaman' },
+        {label: 'Pinjaman', url: '/master/pinjaman'},
     ];
     const toast = useRef<Toast | null>(null);
     const [loading, setLoading] = useState<boolean>(false)
@@ -126,7 +132,7 @@ const Pinjaman = () => {
             setTimeout(() => {
                 router.push('/master/pinjaman')
             }, 2000)
-    
+
         } catch (error) {
             console.error("Error creating pinjaman:", error);
             toast.current!.show({
@@ -135,7 +141,7 @@ const Pinjaman = () => {
                 detail: 'Failed to create pinjaman.',
                 life: 3000
             });
-    
+
             setLoading(false);
         }
     };
@@ -148,15 +154,15 @@ const Pinjaman = () => {
     return (
         <FullLayout>
             <PageContainer title="Pinjaman">
-                <Toast ref={toast} />
+                <Toast ref={toast}/>
                 <Card
                     title="Pinjaman"
                     className="mb-2"
-                    subTitle={<BreadcrumbBase items={breadcrumbItems} />}
+                    subTitle={<BreadcrumbBase items={breadcrumbItems}/>}
                     pt={{
-                        body: { className: 'border-round border-200 border-2 surface-overlay' },
-                        title: { className: 'ml-3 mt-1 text-xl' },
-                        subTitle: { className: 'mb-0' },
+                        body: {className: 'border-round border-200 border-2 surface-overlay'},
+                        title: {className: 'ml-3 mt-1 text-xl'},
+                        subTitle: {className: 'mb-0'},
                     }}
                 />
                 <TablePinjaman
@@ -168,14 +174,14 @@ const Pinjaman = () => {
                     setSelectedData={(data) => setSelectedData(data)}
                 />
                 <Dialog
-                    header={formCondition + ' Pinjaman ' + (selectedData ? selectedData?.anggotas.name : '')}
+                    header={formCondition + ' Pinjaman ' + (selectedData ? '' : '')}
                     visible={dialogForm}
                     onHide={() => {
                         setFormCondition('')
                         setDialogForm(false)
                         setSelectedData(null)
                     }}
-                    style={{ width: '30vw' }}
+                    style={{width: '30vw'}}
                 >
                     <FormPinjaman
                         formCondition={formCondition}
