@@ -1,13 +1,13 @@
 import * as Yup from "yup";
-import { useFormik } from "formik";
-import { useEffect, useRef, useState } from "react";
-import { InputText } from "primereact/inputtext";
+import {useFormik} from "formik";
+import {useEffect, useRef, useState} from "react";
+import {InputText} from "primereact/inputtext";
 import clsx from "clsx";
-import { InputNumber } from "primereact/inputnumber";
-import { Button } from "primereact/button";
-import { TAnggota } from "../../../service/master/anggota";
-import { Dropdown } from "primereact/dropdown";
-import { Toast } from "primereact/toast";
+import {InputNumber} from "primereact/inputnumber";
+import {Button} from "primereact/button";
+import {TAnggota} from "../../../service/master/anggota";
+import {Dropdown} from "primereact/dropdown";
+import {Toast} from "primereact/toast";
 
 type TFormPendaftaran = {
     formCondition: string;
@@ -32,7 +32,7 @@ const schema = Yup.object().shape({
 });
 
 const initialValues = {
-    nik: "",
+    nik: 0,
     name: "",
     ttl: "",
     alamat: "",
@@ -56,7 +56,7 @@ const FormPendaftaran = (props: TFormPendaftaran) => {
     const formik = useFormik({
         initialValues: initData,
         validationSchema: schema,
-        onSubmit: async (values, { setStatus, setSubmitting }) => {
+        onSubmit: async (values, {setStatus, setSubmitting}) => {
             try {
                 (props.formCondition === "Pendaftaran")
                 props.saveCreate!(values);
@@ -97,14 +97,12 @@ const FormPendaftaran = (props: TFormPendaftaran) => {
         setInitData(initialValues);
         setShowConfirmation(false);
 
-        if (toast.current) {
-            toast.current.show({
-                severity: 'success',
-                summary: 'Success',
-                detail: 'Data saved successfully',
-                life: 3000,
-            });
-        }
+        toast.current!.show({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Data saved successfully',
+            life: 3000,
+        });
     };
 
     const handleNo = () => {
@@ -149,7 +147,7 @@ const FormPendaftaran = (props: TFormPendaftaran) => {
 
                             className={clsx(
                                 ' w-ful form-control bg-transparent',
-                                { 'is-invalid': formik.touched.nik && formik.errors.nik },
+                                {'is-invalid': formik.touched.nik && formik.errors.nik},
                                 {
                                     'is-valid': formik.touched.nik && !formik.errors.nik,
                                 }
@@ -159,7 +157,7 @@ const FormPendaftaran = (props: TFormPendaftaran) => {
                                 id="nik"
                                 name="nik"
                                 placeholder="Masukkan NIK"
-                                value={formik.values.nik || ''}
+                                value={formik.values.nik}
                                 onChange={(e) => {
                                     formik.setFieldValue('nik', e.value);
                                 }}
@@ -175,7 +173,7 @@ const FormPendaftaran = (props: TFormPendaftaran) => {
                         <div
                             className={clsx(
                                 ' w-ful form-control bg-transparent',
-                                { 'is-invalid': formik.touched.name && formik.errors.name },
+                                {'is-invalid': formik.touched.name && formik.errors.name},
                                 {
                                     'is-valid': formik.touched.name && !formik.errors.name,
                                 }
@@ -234,11 +232,11 @@ const FormPendaftaran = (props: TFormPendaftaran) => {
                             optionLabel="label"
                             value={formik.values.departemen || null}
                             options={[
-                                { label: 'Service', value: 'Service' },
-                                { label: 'Admin', value: 'Admin' },
-                                { label: 'Warehouse', value: 'Warehouse' },
-                                { label: 'Sales', value: 'Sales' },
-                                { label: 'SHE', value: 'SHE' }
+                                {label: 'Service', value: 'Service'},
+                                {label: 'Admin', value: 'Admin'},
+                                {label: 'Warehouse', value: 'Warehouse'},
+                                {label: 'Sales', value: 'Sales'},
+                                {label: 'SHE', value: 'SHE'}
                             ]}
                             onChange={(e) => {
                                 formik.setFieldValue('departemen', e.value);
@@ -257,17 +255,17 @@ const FormPendaftaran = (props: TFormPendaftaran) => {
                             optionLabel="label"
                             value={formik.values.jabatan || ''}
                             options={[
-                                { label: 'Service Technician', value: 'Service Technician' },
-                                { label: 'Service Coordinator', value: 'Service Coordinator' },
-                                { label: 'Service Supervisor', value: 'Service Supervisor' },
-                                { label: 'Service Manager', value: 'Service Manager' },
-                                { label: 'Branch Manager', value: 'Branch Manager' },
-                                { label: 'Service Planner', value: 'Service Planner' },
-                                { label: 'Credit Control', value: 'Credit Control' },
-                                { label: 'Admin', value: 'Admin' },
-                                { label: 'Store Keeper', value: 'Store Keeper' },
-                                { label: 'Customer Development Executive', value: 'Customer Development Executive' },
-                                { label: 'Customer Development Manager', value: 'Customer Development Manager' }
+                                {label: 'Service Technician', value: 'Service Technician'},
+                                {label: 'Service Coordinator', value: 'Service Coordinator'},
+                                {label: 'Service Supervisor', value: 'Service Supervisor'},
+                                {label: 'Service Manager', value: 'Service Manager'},
+                                {label: 'Branch Manager', value: 'Branch Manager'},
+                                {label: 'Service Planner', value: 'Service Planner'},
+                                {label: 'Credit Control', value: 'Credit Control'},
+                                {label: 'Admin', value: 'Admin'},
+                                {label: 'Store Keeper', value: 'Store Keeper'},
+                                {label: 'Customer Development Executive', value: 'Customer Development Executive'},
+                                {label: 'Customer Development Manager', value: 'Customer Development Manager'}
                             ]}
                             onChange={(e) => {
                                 formik.setFieldValue('jabatan', e.target.value);
@@ -298,8 +296,11 @@ const FormPendaftaran = (props: TFormPendaftaran) => {
                             optionLabel="label"
                             value={formik.values.divisi || null}
                             options={[
-                                { label: 'Pest Control (PT. Rentokil Indonesia)', value: 'Pest Control (PT. Rentokil Indonesia)' },
-                                { label: 'Hygiene (PT. Calmic Indonesia)', value: '(PT. Calmic Indonesia)' },
+                                {
+                                    label: 'Pest Control (PT. Rentokil Indonesia)',
+                                    value: 'Pest Control (PT. Rentokil Indonesia)'
+                                },
+                                {label: 'Hygiene (PT. Calmic Indonesia)', value: '(PT. Calmic Indonesia)'},
                             ]}
                             onChange={(e) => {
                                 formik.setFieldValue('divisi', e.value);
@@ -318,7 +319,7 @@ const FormPendaftaran = (props: TFormPendaftaran) => {
                             optionLabel="label"
                             value={formik.values.status_karyawan || null}
                             options={[
-                                { label: 'PKWTT', value: 'PKWTT' },
+                                {label: 'PKWTT', value: 'PKWTT'},
                             ]}
                             onChange={(e) => {
                                 formik.setFieldValue('status_karyawan', e.target.value);
@@ -342,7 +343,7 @@ const FormPendaftaran = (props: TFormPendaftaran) => {
                         />
                     </div>
                     <div className="col-12 flex justify-content-center">
-                        <Button type="submit" label="Save" size="small" severity="success" />
+                        <Button type="submit" label="Save" size="small" severity="success"/>
                         <Toast ref={toast}/>
                     </div>
                 </div>

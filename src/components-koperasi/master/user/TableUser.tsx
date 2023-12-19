@@ -1,47 +1,36 @@
-import {DataTable, DataTableFilterMeta} from "primereact/datatable";
-import {Column} from "primereact/column";
-import {Toolbar} from "primereact/toolbar";
+import {useState} from "react";
 import {Button} from "primereact/button";
+import {Toolbar} from "primereact/toolbar";
+import {DataTable} from "primereact/datatable";
+import {Column} from "primereact/column";
 import {Paginator} from "primereact/paginator";
-import {useEffect, useState} from "react";
-import axios from "axios";
-import {Dropdown} from "primereact/dropdown";
 import {InputText} from "primereact/inputtext";
+import {Dropdown} from "primereact/dropdown";
 
-type TTablePinjaman = {
+type TUser = {
     data: any;
-    anggotaList: any;
     loading: boolean;
     setDialogForm: (data: boolean) => void;
     setFormCondition: (data: string) => void;
     setSelectedData?: (data: any) => void;
-};
+}
 
-const TablePinjaman = (props: TTablePinjaman) => {
+const TableUser = (props: TUser) => {
     const [first, setFirst] = useState(0);
     const [rows, setRows] = useState(5);
-    const [selectedPinjaman, setSelectedPinjaman] = useState<any>(5);
-    const [code, setCode] = useState<string>('');
-
-    const anggotaOptions = (props.anggotaList || []).map((item: any) => {
-        return {name: item.name, code: item.id};
-    });
 
     const startContent = (
         <>
-            <InputText
-                placeholder="Cari Code Pinjaman"
-                value={code}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCode(e.target.value)}
-                className='ml-2'
-            />
-            <Dropdown
-                value={selectedPinjaman}
-                onChange={(e) => setSelectedPinjaman(e.value)}
-                options={anggotaOptions}
-                optionLabel="name"
-                placeholder="Cari Nama Anggota"
-                className="w-full md:w-14rem ml-2"
+            <Button
+                type="button"
+                size="small"
+                severity="success"
+                label="Create"
+                icon="pi pi-plus"
+                onClick={() => {
+                    props.setFormCondition!("Create")
+                    props.setDialogForm(true);
+                }}
             />
         </>
     );
@@ -88,16 +77,10 @@ const TablePinjaman = (props: TTablePinjaman) => {
                 scrollable
             >
                 <Column header="#" headerStyle={{width: '3rem'}} body={(data, options) => options.rowIndex + 1}/>
-                <Column field="kode" header="Kode Pinjaman"/>
-                <Column field="anggotas.name" header="Anggota"/>
-                <Column field="tgl_pinjaman" header="Tgl Pinjaman"/>
-                <Column field="anggotas.golongan" header="Golongan"/>
-                <Column field="pinjaman" header="Total Pinjaman"/>
-                <Column field="bunga" header="Bunga (1,5%)"/>
-                <Column field="tenor" header="Tenor"/>
-                <Column field="jatuh_tempo" header="Jatuh Tempo"/>
-                <Column field="deskripsi" header="Deskripsi"/>
-                <Column field="angsuran" header="Angsuran/bulan"/>
+                <Column field="name" header="name"/>
+                <Column field="email" header="email"/>
+                <Column field="role" header="role"/>
+                <Column field="email_verified_at" header="email_verified_at"/>
                 <Column body={crudButton}/>
             </DataTable>
 
@@ -110,6 +93,6 @@ const TablePinjaman = (props: TTablePinjaman) => {
             />
         </div>
     );
-};
+}
 
-export default TablePinjaman;
+export default TableUser

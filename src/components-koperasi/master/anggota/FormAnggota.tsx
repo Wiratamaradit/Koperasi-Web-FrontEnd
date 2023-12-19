@@ -112,8 +112,6 @@ const FormAnggota = (props: TFormAnggota) => {
         formik.setFieldValue('golongan', selectedGolongan);
     }, [formik.values.jabatan]);
 
-    console.log(formik.touched)
-
     return (
         <div>
             {

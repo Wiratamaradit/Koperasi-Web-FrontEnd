@@ -13,7 +13,7 @@ import {useRouter} from "next/router";
 import {router} from "next/client";
 
 const Pendaftaran = () => {
-    const c = useRouter()
+    const router = useRouter()
     const toast = useRef<Toast | null>(null);
     const [loading, setLoading] = useState<boolean>(false)
 

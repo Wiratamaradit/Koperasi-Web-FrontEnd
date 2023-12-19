@@ -1,56 +1,34 @@
-import {MenuItem} from "primereact/menuitem";
-import {Card} from "primereact/card";
-import FullLayout from "../../../src/layouts/full/FullLayout";
-import PageContainer from "../../../src/components/container/PageContainer";
-import BreadcrumbBase from "../../../src/base/components/BaseBreadCrumb/BaseBreadCrumb";
 import withSessionCheck from "../../../src/base/utils/WithAuth";
+import FullLayout from "../../../src/layouts/full/FullLayout";
+import BreadcrumbBase from "../../../src/base/components/BaseBreadCrumb/BaseBreadCrumb";
+import {Card} from "primereact/card";
 import React, {useEffect, useRef, useState} from "react";
+import {MenuItem} from "primereact/menuitem";
 import {Toast} from "primereact/toast";
+import PageContainer from "../../../src/components/container/PageContainer";
+import {createUser, deleteUSer, listUser, TUser, updateUSer} from "../../../src/service/master/user";
+import TableUser from "../../../src/components-koperasi/master/user/TableUser";
 import {Dialog} from "primereact/dialog";
-import TablePinjaman from "../../../src/components-koperasi/master/pinjaman/TablePinjaman";
-import {
-    createPinjaman,
-    deletePinjaman,
-    listPinjaman,
-    TPinjaman,
-    updatePinjaman
-} from "../../../src/service/master/pinjaman";
-import {listAnggota, TAnggota} from "../../../src/service/master/anggota";
-import FormPinjaman from "../../../src/components-koperasi/master/pinjaman/FormPinjaman";
-import router from "next/router";
+import FormUser from "../../../src/components-koperasi/master/user/FormUser";
+import {createPinjaman, deletePinjaman, TPinjaman, updatePinjaman} from "../../../src/service/master/pinjaman";
 
-const Pinjaman = () => {
+const User = () => {
     const breadcrumbItems: MenuItem[] = [
-        {label: 'Pinjaman', url: '/master/pinjaman'},
+        {label: 'User', url: '/master/user'},
     ];
     const toast = useRef<Toast | null>(null);
     const [loading, setLoading] = useState<boolean>(false)
     const [dialogForm, setDialogForm] = useState<boolean>(false)
 
     const [list, setLList] = useState<[] | any>([])
-    const [anggotaList, setAnggotaList] = useState<[] | any>([]);
 
     const [formCondition, setFormCondition] = useState<string>('')
     const [selectedData, setSelectedData] = useState<any>()
 
-    const getAnggota = async () => {
-        try {
-            const response = await listAnggota();
-            setAnggotaList(response.data.data);
-        } catch (error: any) {
-            toast.current!.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: `${error.response.data.message}`,
-                life: 3000
-            });
-        }
-    };
-
     const getList = async () => {
         try {
             setLoading(true)
-            const response = await listPinjaman()
+            const response = await listUser()
             setLList(response.data.data)
             setLoading(false)
         } catch (error: any) {
@@ -64,18 +42,14 @@ const Pinjaman = () => {
         }
     }
 
-    const handleUpdate = async (data: TPinjaman, id: number) => {
+    const handleUpdate = async (data: TUser, id: number) => {
         try {
             setLoading(true)
-            const response = await updatePinjaman({
-                anggotaId: data.anggotaId,
-                tgl_pinjaman: data.tgl_pinjaman,
-                pinjaman: data.pinjaman,
-                bunga: data.bunga,
-                tenor: data.tenor,
-                jatuh_tempo: data.jatuh_tempo,
-                deskripsi: data.deskripsi,
-                status: data.status
+            const response = await updateUSer({
+                name: data.name,
+                role: data.role,
+                email: data.email,
+                password: data.password,
             }, id)
             toast.current!.show({
                 severity: 'success',
@@ -93,7 +67,7 @@ const Pinjaman = () => {
     const handleDelete = async (id: number) => {
         try {
             setLoading(true)
-            const response = await deletePinjaman(id)
+            const response = await deleteUSer(id)
             toast.current!.show({
                 severity: 'success',
                 summary: 'Success',
@@ -106,18 +80,14 @@ const Pinjaman = () => {
             setLoading(false)
         }
     }
-    const handleCreate = async (data: TPinjaman) => {
+    const handleCreate = async (data: TUser) => {
         try {
             setLoading(true)
-            const response = await createPinjaman({
-                anggotaId: data.anggotaId,
-                tgl_pinjaman: data.tgl_pinjaman,
-                pinjaman: data.pinjaman,
-                bunga: data.bunga,
-                tenor: data.tenor,
-                jatuh_tempo: data.jatuh_tempo,
-                deskripsi: data.deskripsi,
-                status: data.status
+            const response = await createUser({
+                name: data.name,
+                role: data.role,
+                email: data.email,
+                password: data.password,
             })
             toast.current!.show({
                 severity: 'success',
@@ -141,15 +111,14 @@ const Pinjaman = () => {
 
     useEffect(() => {
         getList()
-        getAnggota()
     }, []);
 
     return (
         <FullLayout>
-            <PageContainer title="Pinjaman">
+            <PageContainer title="User">
                 <Toast ref={toast}/>
                 <Card
-                    title="Pinjaman"
+                    title="User"
                     className="mb-2"
                     subTitle={<BreadcrumbBase items={breadcrumbItems}/>}
                     pt={{
@@ -158,16 +127,15 @@ const Pinjaman = () => {
                         subTitle: {className: 'mb-0'},
                     }}
                 />
-                <TablePinjaman
+                <TableUser
                     data={list}
-                    anggotaList={anggotaList}
                     loading={loading}
                     setDialogForm={(data) => setDialogForm(data)}
                     setFormCondition={(data) => setFormCondition(data)}
                     setSelectedData={(data) => setSelectedData(data)}
                 />
                 <Dialog
-                    header={formCondition + ' Pinjaman ' + (selectedData ? '' : '')}
+                    header={formCondition + ' User ' + (selectedData ? '' : '')}
                     visible={dialogForm}
                     onHide={() => {
                         setFormCondition('')
@@ -176,20 +144,21 @@ const Pinjaman = () => {
                     }}
                     style={{width: '30vw'}}
                 >
-                    <FormPinjaman
+
+                    <FormUser
                         formCondition={formCondition}
                         selectedData={selectedData}
                         setDialogForm={(data: boolean) => setDialogForm(data)}
-                        saveUpdate={(data: TPinjaman, id: number) => handleUpdate(data, id)}
+                        saveUpdate={(data: TUser, id: number) => handleUpdate(data, id)}
                         saveDelete={(id: number) => handleDelete(id)}
-                        saveCreate={(data: TPinjaman) => handleCreate(data)}
-                        anggotaList={anggotaList}
+                        saveCreate={(data: TUser) => handleCreate(data)}
                     />
 
                 </Dialog>
             </PageContainer>
+
         </FullLayout>
     )
 }
 
-export default withSessionCheck(Pinjaman)
+export default withSessionCheck(User)

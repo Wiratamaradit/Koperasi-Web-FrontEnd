@@ -10,7 +10,7 @@ import {
     IconZoomMoney
 } from '@tabler/icons-react';
 
-import { uniqueId } from 'lodash';
+import {uniqueId} from 'lodash';
 
 const Menuitems = [
     {
@@ -32,7 +32,7 @@ const Menuitems = [
         id: uniqueId(),
         title: 'Data User',
         icon: IconLayoutDashboard,
-        href: '/',
+        href: '/master/user',
     },
     {
         id: uniqueId(),
@@ -62,9 +62,9 @@ const Menuitems = [
         id: uniqueId(),
         title: 'Pengajuan Pinjaman',
         icon: IconUserPlus,
-        href: '/master/pendaftaran',
+        href: '/master/pengajuan-pinjaman',
     },
-    
+
     {
         navlabel: true,
         subheader: 'Report',
