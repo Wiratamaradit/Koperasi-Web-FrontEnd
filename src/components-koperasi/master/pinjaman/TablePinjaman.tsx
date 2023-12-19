@@ -100,7 +100,7 @@ const TablePinjaman = (props: TTablePinjaman) => {
                 scrollable
             >
                 <Column header="#" headerStyle={{width: '3rem'}} body={(data, options) => options.rowIndex + 1}/>
-                <Column field="kode" header="Code"/>
+                <Column field="kode" header="Kode Pinjaman"/>
                 <Column field="anggotas.name" header="Anggota"/>
                 <Column field="tgl_pinjaman" header="Tgl Pinjaman"/>
                 <Column field="anggotas.golongan" header="Golongan"/>

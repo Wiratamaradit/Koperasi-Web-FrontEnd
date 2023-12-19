@@ -10,7 +10,7 @@ import {
     IconZoomMoney
 } from '@tabler/icons-react';
 
-import {uniqueId} from 'lodash';
+import { uniqueId } from 'lodash';
 
 const Menuitems = [
     {
@@ -21,8 +21,50 @@ const Menuitems = [
         id: uniqueId(),
         title: 'Dashboard',
         icon: IconLayoutDashboard,
-        href: '/master/dashboard',
+        href: '/',
     },
+
+    {
+        navlabel: true,
+        subheader: 'Data Master',
+    },
+    {
+        id: uniqueId(),
+        title: 'Data User',
+        icon: IconLayoutDashboard,
+        href: '/',
+    },
+    {
+        id: uniqueId(),
+        title: 'Data Anggota',
+        icon: IconUser,
+        href: '/master/anggota',
+    },
+    {
+        id: uniqueId(),
+        title: 'Data Pinjaman',
+        icon: IconReportMoney,
+        href: '/master/pinjaman',
+    },
+
+    {
+        navlabel: true,
+        subheader: 'Utilities',
+    },
+
+    {
+        id: uniqueId(),
+        title: 'Pendaftaran Anggota',
+        icon: IconUserPlus,
+        href: '/master/pendaftaran',
+    },
+    {
+        id: uniqueId(),
+        title: 'Pengajuan Pinjaman',
+        icon: IconUserPlus,
+        href: '/master/pendaftaran',
+    },
+    
     {
         navlabel: true,
         subheader: 'Report',
@@ -32,38 +74,6 @@ const Menuitems = [
         title: 'Laporan',
         icon: IconList,
         href: '/laporan',
-    },
-    {
-        navlabel: true,
-        subheader: 'Utilities',
-    },
-    {
-        id: uniqueId(),
-        title: 'Pinjaman',
-        icon: IconReportMoney,
-        href: '/master/pinjaman',
-    },
-    {
-        id: uniqueId(),
-        title: 'Angsuran',
-        icon: IconReport,
-        href: '/utilities/angsuran',
-    },
-    {
-        navlabel: true,
-        subheader: 'Auth',
-    },
-    {
-        id: uniqueId(),
-        title: 'Anggota',
-        icon: IconUser,
-        href: '/master/anggota',
-    },
-    {
-        id: uniqueId(),
-        title: 'Pendaftaran',
-        icon: IconUserPlus,
-        href: '/master/pendaftaran',
     },
 ];
 

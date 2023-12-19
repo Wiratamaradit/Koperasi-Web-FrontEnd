@@ -5,7 +5,7 @@ export type TPinjaman = {
     anggotaId: number;
     tgl_pinjaman: string;
     pinjaman: number;
-    bunga: string;
+    bunga: number;
     tenor: string;
     jatuh_tempo: string;
     deskripsi: string;

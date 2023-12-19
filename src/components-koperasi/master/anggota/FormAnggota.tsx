@@ -80,7 +80,7 @@ const FormAnggota = (props: TFormAnggota) => {
             try {
                 if (props.formCondition === 'Update') {
                     props.saveUpdate!(values, props.selectedData.id)
-                   cc
+                   
                 }
             } catch (error) {
                 if (props.formCondition === 'Update') {
