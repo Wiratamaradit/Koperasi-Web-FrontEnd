@@ -44,12 +44,12 @@ const Menuitems = [
         href: '/master/saving',
     },
 
-    {
-        id: uniqueId(),
-        title: 'Data Angsuran',
-        icon: IconZoomMoney,
-        href: '/master/installment',
-    },
+    // {
+    //     id: uniqueId(),
+    //     title: 'Data Angsuran',
+    //     icon: IconZoomMoney,
+    //     href: '/master/installment',
+    // },
 
     {
         navlabel: true,
