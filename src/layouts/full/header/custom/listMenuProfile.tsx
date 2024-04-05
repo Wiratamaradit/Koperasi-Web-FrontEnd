@@ -13,7 +13,7 @@ export const listMenuProfile: MenuItem[] = [
                 router.push('/login')
             };
             return (
-                <div className="card flex justify-content-center mt-2">
+                <div className="card flex justify-content-center background-#1E1E2D">
                     <Button
                         onClick={handleLogout}
                         label="LOGOUT"

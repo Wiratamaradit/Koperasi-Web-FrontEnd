@@ -6,14 +6,14 @@ import Sidebar from "./sidebar/Sidebar";
 
 const MainWrapper = styled("div")(() => ({
     display: "flex",
-    minHeight: "100vh",
-    width: "100%",
+    minHeight: "100%",
+    width: "auto",
 }));
 
 const PageWrapper = styled("div")(() => ({
     display: "flex",
     flexGrow: 1,
-    paddingBottom: "60px",
+    paddingBottom: "70px",
     flexDirection: "column",
     zIndex: 1,
     backgroundColor: "transparent",
@@ -49,7 +49,7 @@ const FullLayout: React.FC<Props> = ({children}) => {
     }, []);
 
     return (
-        <MainWrapper className="mainwrapper" style={{background: "#ebebeb"}}>
+        <MainWrapper className="mainwrapper" style={{background: "#B1B1BF"}}>
             {isMobileSidebarOpen
                 ? <Sidebar
                     isSidebarOpen={isMobileSidebarOpen}

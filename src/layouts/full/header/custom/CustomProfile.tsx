@@ -18,10 +18,10 @@ const CustomProfile = () => {
     }, []);
 
     return (
-        <Box display="flex" alignItems="center">
+        <Box display="flex" alignItems="center" >
             <Menu model={listMenuProfile} ref={modal} popup/>
             <div className="text-start p-2 font-bold">
-                {sessionAuth?.data?.email}
+               <p>{sessionAuth?.data?.name.toUpperCase()}</p>
             </div>
             <Button link rounded size="small" onClick={(event: any) => modal.current?.toggle(event)}>
                 <Avatar image="/images/profile/user-1.jpg" shape="circle"/>

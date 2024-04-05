@@ -1,13 +1,7 @@
 import {
-    IconAperture,
-    IconCopy, IconFileReport,
-    IconLayoutDashboard, IconLayoutList, IconList, IconListDetails,
-    IconLogin, IconMoneybag,
-    IconMoodHappy, IconPigMoney, IconReport,
-    IconReportMoney,
-    IconTypography, IconUser, IconUserCircle,
-    IconUserPlus,
-    IconZoomMoney
+    IconBellPlus, IconBellRinging, IconBellRinging2, IconCalculator,
+    IconLayoutDashboard, IconLicense, IconList, IconMoneybag,
+    IconReportMoney, IconUser, IconZoomMoney
 } from '@tabler/icons-react';
 
 import {uniqueId} from 'lodash';
@@ -28,52 +22,97 @@ const Menuitems = [
         navlabel: true,
         subheader: 'Data Master',
     },
-    {
-        id: uniqueId(),
-        title: 'Data User',
-        icon: IconLayoutDashboard,
-        href: '/master/user',
-    },
+
     {
         id: uniqueId(),
         title: 'Data Anggota',
         icon: IconUser,
-        href: '/master/anggota',
+        href: '/master/user',
     },
+    
     {
         id: uniqueId(),
         title: 'Data Pinjaman',
         icon: IconReportMoney,
-        href: '/master/pinjaman',
-    },
-
-    {
-        navlabel: true,
-        subheader: 'Utilities',
+        href: '/master/loan',
     },
 
     {
         id: uniqueId(),
-        title: 'Pendaftaran Anggota',
-        icon: IconUserPlus,
-        href: '/master/pendaftaran',
+        title: 'Data Simpanan',
+        icon: IconMoneybag,
+        href: '/master/saving',
     },
+
+    {
+        id: uniqueId(),
+        title: 'Data Angsuran',
+        icon: IconZoomMoney,
+        href: '/master/installment',
+    },
+
+    {
+        navlabel: true,
+        subheader: 'Services',
+    },
+
     {
         id: uniqueId(),
         title: 'Pengajuan Pinjaman',
-        icon: IconUserPlus,
-        href: '/master/pengajuan-pinjaman',
+        icon: IconList,
+        href: '/master/loan-submission',
+    },
+
+    {
+        id: uniqueId(),
+        title: 'Pengajuan Simpanan',
+        icon: IconLicense,
+        href: '/master/savings-submission',
     },
 
     {
         navlabel: true,
-        subheader: 'Report',
+        subheader: 'Supports',
     },
+
     {
         id: uniqueId(),
-        title: 'Laporan',
-        icon: IconList,
-        href: '/laporan',
+        title: 'Simulasi Pinjaman',
+        icon: IconCalculator,
+        href: '/master/simulation-loan',
+    },
+
+    {
+        id: uniqueId(),
+        title: 'Simulasi Simpanan',
+        icon: IconCalculator,
+        href: '/master/simulation-saving',
+    },
+
+    {
+        navlabel: true,
+        subheader: 'Validation',
+    },
+
+    {
+        id: uniqueId(),
+        title: 'Validasi Anggota',
+        icon: IconBellRinging,
+        href: '/master/validation-user',
+    },
+
+    {
+        id: uniqueId(),
+        title: 'Validasi Pinjaman',
+        icon: IconBellPlus,
+        href: '/master/validation-loan',
+    },
+
+    {
+        id: uniqueId(),
+        title: 'Validasi Simpanan',
+        icon: IconBellRinging2,
+        href: '/master/validation-saving',
     },
 ];
 

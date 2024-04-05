@@ -8,6 +8,12 @@ import { Chart } from 'primereact/chart';
 
 function Home() {
     const router = useRouter()
+    const [user, setUser] = useState({role: ''})
+
+    useEffect(() => {
+        setUser(JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data)
+      }, [])
+      console.log(user)
 
     return (
         <FullLayout>
@@ -15,22 +21,22 @@ function Home() {
                 <>
                     <div className="p-card-title">
                         <div className="col-md-4 mb-3" >
-                            <Card title='Dashboard' className="bg-primary">
-                                <p className="m-0">
-                                    Selamat Datang di Dashboard Admin
+                            <Card title='Dashboard' style={{backgroundColor: '#1E1E2D', color: 'white'}}>
+                                <p className="m-0" style={{color: 'white'}}>
+                                    Selamat Datang di dashboard {user?.role}
                                 </p>
                             </Card>
                         </div>
                     </div>
 
-                    <div className="card flex flex-column md:flex-row gap-3">
-                        <div className="col-md-4 mb-3">
-                            <Card title="Data Anggota" className="md:w-19rem">
-                                <p className="m-0">
-                                    10 Anggota
-                                </p>
-                            </Card>
-                        </div>
+                        <div className="card flex flex-column md:flex-row gap-4">
+                            <div className="col-md-4 mb-3">
+                                <Card title="Data Anggota" className="md:w-19rem">
+                                    <p className="m-0">
+                                        10 Anggota
+                                    </p>
+                                </Card>
+                            </div>
                         <div className="col-md-4 mb-3">
                             <Card title="Saldo Koperasi" className="md:w-19rem">
                                 <p className="m-0">
@@ -47,7 +53,7 @@ function Home() {
                         </div>
                     </div>
                     <div className="row">
-                    <div className="card flex flex-column md:flex-row gap-3">
+                    <div className="card flex flex-column md:flex-row gap-4">
                         <div className="col-md-4 mb-3">
                             <Card title="Data Pinjaman" className="md:w-19rem">
                                 <p className="m-0">

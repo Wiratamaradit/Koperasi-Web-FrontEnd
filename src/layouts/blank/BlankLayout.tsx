@@ -6,7 +6,7 @@ interface BlankLayoutProps {
 
 const BlankLayout = ({ children }: BlankLayoutProps) => {
   return (
-    <Box>{children}</Box>
+    <Box >{children}</Box>
   )
 };
 

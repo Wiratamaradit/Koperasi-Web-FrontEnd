@@ -14,17 +14,17 @@ const Header = ({toggleMobileSidebar}: ItemType) => {
 
     const AppBarStyled = styled(AppBar)(({theme}) => ({
         boxShadow: 'none',
-        background: theme.palette.background.paper,
-        // background: "#1E1E2D",
+        background: "#1E1E2D",
         justifyContent: 'center',
         backdropFilter: 'blur(4px)',
+        border: '2px solid white',
         [theme.breakpoints.up('lg')]: {
             minHeight: '70px',
         },
     }));
     const ToolbarStyled = styled(Toolbar)(({theme}) => ({
         width: '100%',
-        color: theme.palette.text.secondary,
+        color: 'white',
     }));
 
     return (
@@ -41,7 +41,7 @@ const Header = ({toggleMobileSidebar}: ItemType) => {
                         },
                     }}
                 >
-                    <IconMenu width="20" height="20"/>
+                    <IconMenu width="30" height="30"/>
                 </IconButton>
                 <Box flexGrow={1}/>
                 <Stack spacing={1} direction="row" alignItems="center">
