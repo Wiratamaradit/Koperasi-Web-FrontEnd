@@ -48,20 +48,9 @@ const UserTable = (props: TUserTable) => {
         autoTable(doc, {
           head: [
             [
-              "Kode Anggota",
-              "Nama",
-              "Role",
-              "NIK",
-              "Status Karyawan",
-              "Posisi/Jabatan",
-              "Nama Cabang",
-              "Nama Pimpinan",
-              "Tanggal Bergabung",
-              "Alamat",
-              "No. Telp",
-              "Nama Bank",
-              "No. Rekening",
-              "Iuran",
+              "Kode Anggota", "Nama", "Role", "NIK", "Status Karyawan", "Posisi/Jabatan",
+              "Nama Cabang", "Nama Pimpinan", "Tanggal Bergabung", "Alamat", "No. Telp", 
+              "Nama Bank", "No. Rekening",
             ],
           ],
           body: props.data.map(
@@ -185,19 +174,23 @@ const UserTable = (props: TUserTable) => {
     setCurrentPage(currentPage); 
   };
 
-  const startContent = (
-    <div className="flex align-items-center justify-content-right gap-2">
-      <span className="p-input-icon-left">
-        <i className="pi pi-search" />
-        <InputText
-          type="search"
-          onChange={onGlobalFilterChange}
-          placeholder="Pencarian"
-        />
-      </span>
+  const centerContent = (
+    <span className="p-input-icon-left">
+      <i className="pi pi-search" />
+      <InputText
+        type="Search"
+        placeholder="Search"
+        onChange={onGlobalFilterChange}
+      />
+    </span>
+  );
+
+  const endContent = (
+    <div className="flex align-items-center justify-content-end gap-2">
       {(isAdmin || isHO) && (
-        <div className="flex align-items-center gap-2">
+        <>
           <Button
+            key="excelButton"
             type="button"
             icon="pi pi-file-excel"
             label="Excel"
@@ -207,6 +200,7 @@ const UserTable = (props: TUserTable) => {
             data-pr-tooltip="XLS"
           />
           <Button
+            key="pdfButton"
             type="button"
             icon="pi pi-file-pdf"
             label="PDF"
@@ -215,14 +209,14 @@ const UserTable = (props: TUserTable) => {
             onClick={exportPdf}
             data-pr-tooltip="PDF"
           />
-        </div>
+        </>
       )}
     </div>
   );
-
+  
   return (
     <div className="card">
-      <Toolbar start={startContent} />
+      <Toolbar center={centerContent} end={endContent} className="mb-2" />
       <DataTable
         ref={dt}
         value={props.data}

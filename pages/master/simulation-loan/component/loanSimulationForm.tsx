@@ -170,11 +170,3 @@ const LoanSimulation = () => {
 };
 
 export default LoanSimulation;
-{/* <DataTable
-            value={result.installment}
-            tableStyle={{ minWidth: "50rem" }}
-          >
-            <Column field="intallment" header="Intallment" />
-            <Column field="interest" header="Interest" />
-            <Column field="total" header="Total" />
-          </DataTable> */}

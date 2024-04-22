@@ -1,13 +1,11 @@
-import React from "react";
 import Image from "next/image";
-import myImage from "public/images/koperasilogo.png";
-import { color } from "@mui/system";
+import myImage from "public/images/logo_koperasi-removebg-preview.png";
 
-const DynamicPricing = () => {
+const Logo = () => {
   return (
     <div className="card flex flex-wrap justify-content-center text-white text-lg lg:font-bold mt-5">
       <div style={{ display: "flex", alignItems: "center" }}>
-        <Image src={myImage} alt="logo" width={100} height={100} />
+        <Image src={myImage} alt="logo" width={400} height={150} />
         <label
           style={{
             fontFamily: "sans-serif",
@@ -15,11 +13,10 @@ const DynamicPricing = () => {
             marginLeft: "10px",
           }}
         >
-          <div style={{ color: "black" }}>KOPERASI</div>
         </label>
       </div>
     </div>
   );
 };
 
-export default DynamicPricing;
+export default Logo;

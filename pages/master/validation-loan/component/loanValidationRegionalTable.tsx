@@ -82,9 +82,9 @@ const LoanValidationRegionTable = () => {
   return (
     <>
       <DataTable value={data} tableStyle={{ minWidth: "50rem" }}>
-        <Column field="users.nik" header="NIK"></Column>
+        <Column field="user.nik" header="NIK"></Column>
         <Column field="code" header="Kode Pinjaman"></Column>
-        <Column field="users.name" header="Nama Anggota"></Column>
+        <Column field="user.name" header="Nama Anggota"></Column>
         <Column field="date" header="Tanggal Pengajuan"
         body={(rowData) => {
             const date = new Date(rowData.date);

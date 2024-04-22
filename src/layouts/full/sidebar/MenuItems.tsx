@@ -44,13 +44,6 @@ const Menuitems = [
         href: '/master/saving',
     },
 
-    // {
-    //     id: uniqueId(),
-    //     title: 'Data Angsuran',
-    //     icon: IconZoomMoney,
-    //     href: '/master/installment',
-    // },
-
     {
         navlabel: true,
         subheader: 'Services',

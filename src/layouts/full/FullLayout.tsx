@@ -13,7 +13,7 @@ const MainWrapper = styled("div")(() => ({
 const PageWrapper = styled("div")(() => ({
     display: "flex",
     flexGrow: 1,
-    paddingBottom: "70px",
+    paddingBottom: "30px",
     flexDirection: "column",
     zIndex: 1,
     backgroundColor: "transparent",

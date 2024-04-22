@@ -6,10 +6,11 @@ import { InputText } from "primereact/inputtext";
 import { Password } from "primereact/password";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
-import DynamicPricing from "../../src/components/shared/dynamic-pricing/DynamicPricing";
 import { useRouter } from "next/router";
 import withoutSessionCheck from "../../src/base/utils/WithoutAuth";
 import { userLogin } from "../../src/service/auth";
+import Logo from "../../src/components/shared/logo/Logo";
+import Footer from "../../src/layouts/full/Footer";
 
 const Login = () => {
   const router = useRouter();
@@ -58,7 +59,7 @@ const Login = () => {
             position: "relative",
             "&:before": {
               content: '""',
-              backgroundImage: "url(/images/backgrounds/background.jpg)",
+              backgroundImage: "url(/images/backgrounds/background2.jpg)",
               position: "absolute",
               height: "100%",
               width: "100%",
@@ -92,7 +93,7 @@ const Login = () => {
                   background: "transparent",
                 }}
               >
-                <DynamicPricing />
+                <Logo />
                 <Toast ref={toast} />
                 <form
                   onSubmit={handleButton}
@@ -122,7 +123,10 @@ const Login = () => {
 
                   <p>
                     Apakah anda sudah menjadi anggota ?
-                    <Link href={"/master/member-registration"}> Daftar disini</Link>
+                    <Link href={"/master/member-registration"}>
+                      {" "}
+                      Daftar disini
+                    </Link>
                   </p>
                   <div className="card flex justify-content-center mt-5">
                     <Button
@@ -144,6 +148,7 @@ const Login = () => {
             </Grid>
           </Grid>
         </Box>
+        <Footer />
       </PageContainer>
     </BlankLayout>
   );

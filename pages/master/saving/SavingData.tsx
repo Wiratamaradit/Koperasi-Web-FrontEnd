@@ -9,6 +9,9 @@ import { Toast } from "primereact/toast";
 import { Dialog } from "primereact/dialog";
 import { savingList, TSaving } from "../../../src/service/master/Saving";
 import SavingTable from "../../../src/components-koperasi/master/saving/SavingTable";
+import SavingPaymentForm from "../../../src/components-koperasi/master/saving/submission/SavingPaymentForm";
+import router from "next/router";
+import { savepayCreate, TSavePay } from "../../../src/service/master/SavingPayment";
 
 const Saving = () => {
   const breadcrumbItems: MenuItem[] = [
@@ -17,13 +20,16 @@ const Saving = () => {
   const toast = useRef<Toast | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [list, setList] = useState<[] | any>([]);
-  const [userList, setUserList] = useState<[] | any>([]);
-  const [selectedData, setSelectedData] = useState<any | null>(null);
+  const [formCondition, setFormCondition] = useState<string>("");
+  const [dialogForm, setDialogForm] = useState<boolean>(false);
+  const [selectedData, setSelectedData] = useState<any>()
 
   const getList = async () => {
     try {
       setLoading(true);
-      const userDetail = JSON.parse(localStorage.getItem("sessionAuth") || "{}");
+      const userDetail = JSON.parse(
+        localStorage.getItem("sessionAuth") || "{}"
+      );
       if (userDetail.data.role == "Admin" || userDetail.data.role == "HO") {
         const response = await savingList();
         setList(response.data.data);
@@ -41,6 +47,42 @@ const Saving = () => {
         life: 3000,
       });
       setLoading(false);
+    }
+  };
+
+  const handleCreate = async (data: TSavePay) => {
+    try {
+      setLoading(true);
+      const response = await savepayCreate({
+        saveId: data.saveId,
+        userId: data.userId,
+        nominal: data.nominal,
+        paymentMethod: data.paymentMethod,
+        date: data.date,
+        status: data.status
+      });
+      toast.current!.show({
+        severity: "success",
+        summary: "Success",
+        detail: `${response.data.message}`,
+        life: 3000,
+      });
+      setLoading(false);
+      setTimeout(() => {
+        router.push("/master/saving");
+      }, 2000);
+    } catch (error) {
+      console.error("Gagal melakukan pembayaran", error);
+      toast.current!.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Gagal melakukan pembayaran.",
+        life: 3000,
+      });
+      setLoading(false);
+      setTimeout(() => {
+        router.push("/master/saving");
+      }, 2000);
     }
   };
 
@@ -66,7 +108,30 @@ const Saving = () => {
             subTitle: { className: "mb-0" },
           }}
         />
-        <SavingTable data={list} userList={userList} loading={loading} />
+        <SavingTable
+          data={list}
+          loading={loading}
+          setDialogForm={(data) => setDialogForm(data)}
+          setFormCondition={(data) => setFormCondition(data)}
+          setSelectedData={(data) => setSelectedData(data)}
+        />
+        <Dialog
+          header={"Pembayaran Simpanan"}
+          visible={dialogForm}
+          onHide={() => {
+            setFormCondition("Payment");
+            setDialogForm(false);
+            setSelectedData(null)
+          }}
+          style={{ width: "30vw" }}
+        >
+          <SavingPaymentForm
+            formCondition={"Payment"}
+            selectedData={selectedData}
+            setDialogForm={(data: boolean) => setDialogForm(data)}
+            saveCreate={(data: TSavePay) => handleCreate(data)}
+          />
+        </Dialog>
       </PageContainer>
     </FullLayout>
   );

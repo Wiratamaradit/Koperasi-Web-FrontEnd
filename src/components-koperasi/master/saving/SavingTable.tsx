@@ -1,33 +1,39 @@
-import { DataTable } from "primereact/datatable";
+import {
+  DataTable,
+  DataTableExpandedRows,
+  DataTableValueArray,
+} from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Toolbar } from "primereact/toolbar";
 import { Button } from "primereact/button";
 import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
-import { Dropdown } from "primereact/dropdown";
 import { InputText } from "primereact/inputtext";
-import { TLoan } from "../../../service/master/Loan";
 import autoTable from "jspdf-autotable";
 import { TSaving } from "../../../service/master/Saving";
-import React from "react";
+import { Tag } from "primereact/tag";
+import { ColumnGroup } from "primereact/columngroup";
+import { Row } from "primereact/row";
 
 type TSavingTable = {
   data: any;
-  userList: any;
   loading: boolean;
+  setSelectedData?: (data: any) => void;
+  setDialogForm: (data: boolean, selectedData?: any) => void;
+  setFormCondition: (data: string) => void;
 };
 
 const SavingTable = (props: TSavingTable) => {
   const [first, setFirst] = useState<number>(0);
   const [rows, setRows] = useState<number>(5);
   const [currentPage, setCurrentPage] = useState(1);
-
   const [isAdmin, setIsAdmin] = useState(false);
   const [isHO, setIsHO] = useState(false);
   const dt = useRef<DataTable>(null);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
-
+  const [expandedRows, setExpandedRows] = useState<
+    DataTableExpandedRows | DataTableValueArray | undefined
+  >(undefined);
   const onGlobalFilterChange = (e: { target: { value: string } }) => {
     setGlobalFilterValue(e.target.value);
   };
@@ -169,19 +175,23 @@ const SavingTable = (props: TSavingTable) => {
     );
   }, []);
 
-  const startContent = (
+  const centerContent = (
+    <span className="p-input-icon-left">
+      <i className="pi pi-search" />
+      <InputText
+        type="Search"
+        placeholder="Search"
+        onChange={onGlobalFilterChange}
+      />
+    </span>
+  );
+
+  const endContent = (
     <div className="flex align-items-center justify-content-end gap-2">
-      <span className="p-input-icon-left">
-        <i className="pi pi-search" />
-        <InputText
-          type="search"
-          onChange={onGlobalFilterChange}
-          placeholder="Pencarian"
-        />
-      </span>
       {(isAdmin || isHO) && (
         <>
           <Button
+            key="excelButton"
             type="button"
             icon="pi pi-file-excel"
             label="Excel"
@@ -191,6 +201,7 @@ const SavingTable = (props: TSavingTable) => {
             data-pr-tooltip="XLS"
           />
           <Button
+            key="pdfButton"
             type="button"
             icon="pi pi-file-pdf"
             label="PDF"
@@ -204,19 +215,127 @@ const SavingTable = (props: TSavingTable) => {
     </div>
   );
 
+  const paymentButton = (data: any) => {
+    return (
+      <span className="p-buttonset">
+        <Button
+          label="Payment"
+          icon="pi pi-pencil"
+          severity="info"
+          size="small"
+          rounded
+          onClick={() => {
+            props.setFormCondition("Payment");
+            props.setDialogForm(true);
+            props.setSelectedData!(data);
+          }}
+        />
+      </span>
+    );
+  };
+
+  const statusBodyTemplate = (data: any) => {
+    return (
+      <Tag
+        value={data.status}
+        severity={getSeverity(data)}
+        style={{ width: "50%" }}
+      ></Tag>
+    );
+  };
+
+  const getSeverity = (data: any) => {
+    switch (data.status) {
+      case "Paid":
+        return "success";
+
+      case "Pending":
+        return "warning";
+
+      case "Unpaid":
+        return "danger";
+
+      default:
+        return null;
+    }
+  };
+
+  const calculateTotalPayment = (savingpayments: any[]): number => {
+    return savingpayments.reduce((total, item) => total + item.payment, 0);
+  };
+
+  const footerGroup = (
+    <ColumnGroup>
+      <Row>
+        <Column
+          footer="Saldo :"
+          colSpan={3}
+          footerStyle={{ textAlign: "right" }}
+        />
+        <Column footer={formatCurrency(calculateTotalPayment(props.data))} />
+      </Row>
+    </ColumnGroup>
+  );
+
+  const allowExpansion = (rowData: any) => {
+    return rowData.savingpayments!.length > 0;
+  };
+
+  const rowExpansionTemplate = (data: any) => {
+    return (
+      <div className="p-3">
+        <DataTable value={data.savingpayments} footerColumnGroup={footerGroup}>
+          <Column
+            header="Bulan ke -"
+            headerStyle={{ width: "3rem" }}
+            body={(data, options) => options.rowIndex + 1}
+          />
+          <Column
+            field="date"
+            header="Date"
+            body={(rowData) => {
+              const date = new Date(rowData.date);
+              return date.toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "numeric",
+                year: "numeric",
+              });
+            }}
+          />
+          <Column field="paymentMethod" header="Payment Method" />
+          <Column
+            field="payment"
+            header="Nominal"
+            body={(rowData) => {
+              return formatCurrency(rowData.payment);
+            }}
+          />
+          ;
+          <Column field="status" header="Status" body={statusBodyTemplate} />
+        </DataTable>
+      </div>
+    );
+  };
+
   return (
     <div className="card">
-      <Toolbar start={startContent} />
+      <Toolbar center={centerContent} end={endContent} className="mb-2" />
       <DataTable
         ref={dt}
         value={props.data.slice((currentPage - 1) * rows, currentPage * rows)}
-        first={first} rows={rows}
+        first={first}
+        rows={rows}
         loading={props.loading}
         stripedRows
         scrollable
         removableSort
         globalFilter={globalFilterValue}
+        //expand
+        expandedRows={expandedRows}
+        onRowToggle={(e) => setExpandedRows(e.data)}
+        rowExpansionTemplate={rowExpansionTemplate}
       >
+        <Column expander={allowExpansion} style={{ width: "5rem" }} />
         <Column
           header="No"
           headerStyle={{ width: "3rem" }}
@@ -254,7 +373,7 @@ const SavingTable = (props: TSavingTable) => {
           style={{ width: "25%" }}
           body={(rowData) => {
             const date = new Date(rowData.date);
-            return date.toLocaleDateString("en-US", {
+            return date.toLocaleDateString("id-ID", {
               day: "numeric",
               month: "numeric",
               year: "numeric",
@@ -291,6 +410,7 @@ const SavingTable = (props: TSavingTable) => {
           sortable
           style={{ width: "25%" }}
         />
+        <Column body={paymentButton} />
       </DataTable>
 
       <Paginator
