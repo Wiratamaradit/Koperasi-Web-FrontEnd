@@ -16,6 +16,9 @@ import { InputNumber } from "primereact/inputnumber";
 import axios from "axios";
 import { Card } from "primereact/card";
 import { FileUpload } from "primereact/fileupload";
+import { Tag } from "primereact/tag";
+import { ColumnGroup } from "primereact/columngroup";
+import { Row } from "primereact/row";
 
 type TLoanTable = {
   data: any;
@@ -278,10 +281,109 @@ const LoanTable = (props: TLoanTable) => {
     }
   };
 
+  const statusBodyTemplate = (data: any) => {
+    return (
+      <Tag
+        value={data.status}
+        severity={getStatus(data)}
+        style={{ width: "100%" }}
+      ></Tag>
+    );
+  };
+
+  const getStatus = (data: any) => {
+    switch (data.status) {
+      case "ACTIVE":
+        return "success";
+
+      case "On-Process":
+        return "warning";
+
+      case "INACTIVE":
+        return "danger";
+
+      default:
+        return null;
+    }
+  };
+
+  const validateBodyTemplate = (data: any) => {
+    return (
+      <Tag
+        value={data.loanStatus}
+        severity={getValidate(data)}
+        style={{ width: "100%" }}
+      ></Tag>
+    );
+  };
+
+  const getValidate = (data: any) => {
+    switch (data.loanStatus) {
+      case "Approved":
+        return "success";
+
+      case "On-Process":
+        return "warning";
+
+      case "Rejected":
+        return "danger";
+
+      default:
+        return null;
+    }
+  };
+
+  const paymentBodyTemplate = (data: any) => {
+    return (
+      <Tag
+        value={data.paymentStatus}
+        severity={getPayment(data)}
+        style={{ width: "100%" }}
+      ></Tag>
+    );
+  };
+
+  const getPayment = (data: any) => {
+    switch (data.paymentStatus) {
+      case "Paid":
+        return "success";
+
+      case "unPaid":
+        return "danger";
+
+      default:
+        return null;
+    }
+  };
+
+  const calculatePayment = (data: any) => {
+    let total = 0;
+    for (let item of data) {
+      total += item.nominalPayment;
+    }
+    return total;
+  };
+
+  const footerGroup = (data: any) => (
+    <ColumnGroup>
+      <Row>
+        <Column
+          footer="Total Pinjaman :"
+          colSpan={5}
+          footerStyle={{ textAlign: "right" }}
+        />
+        <Column footer={formatCurrency(calculatePayment(data.installments))} />
+      </Row>
+    </ColumnGroup>
+  );
+
   const rowExpansionTemplate = (data: any) => {
     return (
       <div className="p-3">
-        <DataTable value={data.installments}>
+        <DataTable
+          value={data.installments}
+          footerColumnGroup={footerGroup(data)}
+        >
           <Column
             header="No"
             headerStyle={{ width: "3rem" }}
@@ -307,7 +409,11 @@ const LoanTable = (props: TLoanTable) => {
               });
             }}
           />
-          <Column field="paymentStatus" header="Status" />
+          <Column
+            field="paymentStatus"
+            header="Status"
+            body={paymentBodyTemplate}
+          />
           <Column
             headerStyle={{ width: "4rem" }}
             body={paymentTemplate}
@@ -317,21 +423,40 @@ const LoanTable = (props: TLoanTable) => {
     );
   };
 
-  const saveUploadedData = async () => {
+  const saveUploadedData = async (event: any) => {
     try {
       setUploadFile(true);
-      const response = await axios.post(`${API_URL}/api/loantransAdd`, {
-        installmentId: dataPayment?.installmentId,
-        base64_data: uploadFile,
-      });
+      if (event.files && event.files.length > 0) {
+        const file = event.files[0];
+        const base64 = await convertToBase64(file);
+        const response = await axios.post(`${API_URL}/api/loantransAdd`, {
+          installmentId: dataPayment?.installmentId,
+          base64_data: base64,
+        });
 
-      console.log(response.data);
-      setVisibleDialog(false);
+        console.log(response.data);
+        setVisibleDialog(false);
+      } else {
+        console.error("No file selected");
+      }
     } catch (error) {
       console.error("Failed to save uploaded data:", error);
     } finally {
       setUploadFile(false);
     }
+  };
+
+  const convertToBase64 = (file: any) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
   };
 
   return (
@@ -413,13 +538,13 @@ const LoanTable = (props: TLoanTable) => {
           field="loanStatus"
           header="Validasi Kantor Pusat"
           sortable
-          style={{ width: "25%" }}
+          body={validateBodyTemplate}
         />
         <Column
           field="status"
           header="Status"
           sortable
-          style={{ width: "25%" }}
+          body={statusBodyTemplate}
         />
       </DataTable>
 
@@ -485,6 +610,7 @@ const LoanTable = (props: TLoanTable) => {
                 <p className="m-0">Drag and drop files to here to upload.</p>
               }
               chooseLabel="invoice"
+              onUpload={saveUploadedData}
             />
           </div>
         </Card>

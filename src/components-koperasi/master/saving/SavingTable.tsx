@@ -223,12 +223,12 @@ const SavingTable = (props: TSavingTable) => {
           icon="pi pi-pencil"
           severity="info"
           size="small"
-          rounded
           onClick={() => {
             props.setFormCondition("Payment");
             props.setDialogForm(true);
             props.setSelectedData!(data);
           }}
+          style={{ borderRadius: '10px' }}
         />
       </span>
     );
@@ -238,21 +238,24 @@ const SavingTable = (props: TSavingTable) => {
     return (
       <Tag
         value={data.status}
-        severity={getSeverity(data)}
-        style={{ width: "50%" }}
+        severity={getStatus(data)}
+        style={{ width: "75%" }}
       ></Tag>
     );
   };
 
-  const getSeverity = (data: any) => {
+  const getStatus = (data: any) => {
     switch (data.status) {
       case "Paid":
         return "success";
 
-      case "Pending":
+      case "ACTIVE":
+        return "success";
+
+      case "On-Process":
         return "warning";
 
-      case "Unpaid":
+      case "INACTIVE":
         return "danger";
 
       default:
@@ -260,19 +263,50 @@ const SavingTable = (props: TSavingTable) => {
     }
   };
 
-  const calculateTotalPayment = (savingpayments: any[]): number => {
-    return savingpayments.reduce((total, item) => total + item.payment, 0);
+  const validateBodyTemplate = (data: any) => {
+    return (
+      <Tag
+        value={data.validationSavingStatus}
+        severity={getValidate(data)}
+        style={{ width: "100%" }}
+      ></Tag>
+    );
+  };
+  const getValidate = (data: any) => {
+    switch (data.validationSavingStatus) {
+      case "Approved":
+        return "success";
+
+      case "On-Process":
+        return "warning";
+
+      case "Rejected":
+        return "danger";
+
+      default:
+        return null;
+    }
   };
 
-  const footerGroup = (
+  const calculatePayment = (data: any) => {
+    let total = 0;
+    for (let item of data) {
+      total += item.payment;
+    }
+    return total;
+  };
+
+  const footerGroup = (data: any) => (
     <ColumnGroup>
       <Row>
         <Column
           footer="Saldo :"
-          colSpan={3}
+          colSpan={5}
           footerStyle={{ textAlign: "right" }}
         />
-        <Column footer={formatCurrency(calculateTotalPayment(props.data))} />
+        <Column
+          footer={formatCurrency(calculatePayment(data.savingpayments))}
+        />
       </Row>
     </ColumnGroup>
   );
@@ -284,7 +318,10 @@ const SavingTable = (props: TSavingTable) => {
   const rowExpansionTemplate = (data: any) => {
     return (
       <div className="p-3">
-        <DataTable value={data.savingpayments} footerColumnGroup={footerGroup}>
+        <DataTable
+          value={data.savingpayments}
+          footerColumnGroup={footerGroup(data)}
+        >
           <Column
             header="Bulan ke -"
             headerStyle={{ width: "3rem" }}
@@ -402,13 +439,13 @@ const SavingTable = (props: TSavingTable) => {
           field="validationSavingStatus"
           header="Validasi Cabang"
           sortable
-          style={{ width: "25%" }}
+          body={validateBodyTemplate}
         />
         <Column
           field="status"
           header="Status Simpanan"
           sortable
-          style={{ width: "25%" }}
+          body={statusBodyTemplate}
         />
         <Column body={paymentButton} />
       </DataTable>
