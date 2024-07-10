@@ -14,21 +14,24 @@ import autoTable from "jspdf-autotable";
 import { Dialog } from "primereact/dialog";
 import { InputNumber } from "primereact/inputnumber";
 import axios from "axios";
-import { Card } from "primereact/card";
 import { FileUpload } from "primereact/fileupload";
 import { Tag } from "primereact/tag";
 import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
-
+import { Toast } from "primereact/toast";
 type TLoanTable = {
   data: any;
   loading: boolean;
   userList: any;
+  setDialogForm: (data: boolean) => void;
+  setFormCondition: (data: string) => void;
+  setSelectedData?: (data: any) => void;
 };
 
 const LoanTable = (props: TLoanTable) => {
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL_LARAVEL}`;
   const dt = useRef<DataTable>(null);
+  const toast = useRef<Toast>(null);
   const [first, setFirst] = useState<number>(0);
   const [rows, setRows] = useState<number>(5);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -39,8 +42,11 @@ const LoanTable = (props: TLoanTable) => {
     DataTableExpandedRows | DataTableValueArray | undefined
   >(undefined);
   const [visibleDialog, setVisibleDialog] = useState<boolean>(false);
+  const [downloadFile, setDownloadFile] = useState<boolean>(false);
   const [dataPayment, setDataPayment] = useState<any>();
   const [uploadFile, setUploadFile] = useState<any>();
+  const [fileData, setFileData] = useState<any>();
+  const [revisionsRows, setRevisionsRows] = useState<Array<number>>([]);
 
   console.log(dataPayment);
 
@@ -51,15 +57,15 @@ const LoanTable = (props: TLoanTable) => {
 
   useEffect(() => {
     setIsAdmin(
-      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.role ===
-        "Admin"
+      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.user
+        ?.role === "Admin"
     );
   }, []);
 
   useEffect(() => {
     setIsHO(
-      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.role ===
-        "HO"
+      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.user
+        ?.role === "HO"
     );
   }, []);
 
@@ -248,13 +254,37 @@ const LoanTable = (props: TLoanTable) => {
       )}
     </div>
   );
+  const editButtonTemplate = (data: any) => {
+    const userRole = JSON.parse(localStorage.getItem("sessionAuth") || "{}")
+      ?.data?.user?.role;
+    if (userRole === "Anggota" && data.validationLoanStatus === "Revisions") {
+      return (
+        <span className="p-buttonset">
+          <Button
+            label="Revisi"
+            icon="pi pi-pencil"
+            severity="info"
+            size="small"
+            onClick={() => {
+              props.setFormCondition("Update");
+              props.setDialogForm(true);
+              props.setSelectedData!(data);
+            }}
+            style={{ borderRadius: "10px" }}
+          />
+        </span>
+      );
+    } else {
+      return null;
+    }
+  };
 
   const allowExpansion = (rowData: any) => {
     return rowData.installments!.length > 0;
   };
 
   const paymentTemplate = (data: any) => {
-    if (data.paymentStatus === "unPaid" && (isAdmin || isHO)) {
+    if (data.paymentStatus === "UnPaid" && isAdmin) {
       return (
         <Button
           label="Payment"
@@ -266,19 +296,47 @@ const LoanTable = (props: TLoanTable) => {
           }}
         />
       );
-    } else if (data.paymentStatus === "Paid") {
+    } else if (data.paymentStatus === "PAID") {
       return (
         <Button
-          label="History"
-          severity="success"
+          label="Receipt"
+          severity="info"
           size="small"
           onClick={() => {
-            setVisibleDialog(true);
+            setDownloadFile(true);
             setDataPayment(data);
           }}
         />
       );
+    } else {
+      return null;
     }
+  };
+
+  useEffect(() => {
+    if (downloadFile) {
+      handleDownloadPdf();
+    }
+  }, [downloadFile]);
+
+  const handleDownloadPdf = () => {
+    const pdfUrl = dataPayment?.installmentPayment[0]?.receipt;
+    const fileName = dataPayment?.installmentPayment[0]?.fileName;
+
+    if (!pdfUrl || !fileName) {
+      console.error("URL file PDF atau nama file tidak tersedia.");
+      return;
+    }
+
+    const fullUrl = pdfUrl;
+    const link = document.createElement("a");
+    link.href = fullUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setDownloadFile(false);
+    setDataPayment(null);
   };
 
   const statusBodyTemplate = (data: any) => {
@@ -295,13 +353,12 @@ const LoanTable = (props: TLoanTable) => {
     switch (data.status) {
       case "ACTIVE":
         return "success";
-
       case "On-Process":
         return "warning";
-
       case "INACTIVE":
         return "danger";
-
+      case "LUNAS":
+        return "info";
       default:
         return null;
     }
@@ -321,13 +378,39 @@ const LoanTable = (props: TLoanTable) => {
     switch (data.loanStatus) {
       case "Approved":
         return "success";
-
       case "On-Process":
         return "warning";
-
       case "Rejected":
         return "danger";
+      case "LUNAS":
+        return "info";
+      default:
+        return null;
+    }
+  };
 
+  const regionalValidateTemplate = (data: any) => {
+    return (
+      <Tag
+        value={data.validationLoanStatus}
+        severity={getValidateRegional(data)}
+        style={{ width: "100%" }}
+      ></Tag>
+    );
+  };
+
+  const getValidateRegional = (data: any) => {
+    switch (data.validationLoanStatus) {
+      case "Valid":
+        return "success";
+      case "On-Process":
+        return "warning";
+      case "Revisions":
+        return "info";
+      case "Invalid":
+        return "danger";
+      case "LUNAS":
+        return "info";
       default:
         return null;
     }
@@ -345,10 +428,10 @@ const LoanTable = (props: TLoanTable) => {
 
   const getPayment = (data: any) => {
     switch (data.paymentStatus) {
-      case "Paid":
+      case "PAID":
         return "success";
 
-      case "unPaid":
+      case "UnPaid":
         return "danger";
 
       default:
@@ -364,18 +447,55 @@ const LoanTable = (props: TLoanTable) => {
     return total;
   };
 
-  const footerGroup = (data: any) => (
-    <ColumnGroup>
-      <Row>
-        <Column
-          footer="Total Pinjaman :"
-          colSpan={5}
-          footerStyle={{ textAlign: "right" }}
-        />
-        <Column footer={formatCurrency(calculatePayment(data.installments))} />
-      </Row>
-    </ColumnGroup>
-  );
+  const calculateBalance = (data: any, paidAmount: any) => {
+    let totalUnpaid = 0;
+    for (let item of data.installments) {
+      if (item.paymentStatus !== "PAID") {
+        totalUnpaid += item.nominalPayment;
+      }
+    }
+    const balance = totalUnpaid - paidAmount;
+    if (balance === 0) {
+      data.validationLoanStatus = "LUNAS";
+      data.loanStatus = "LUNAS";
+      data.status = "LUNAS";
+    }
+    return balance;
+  };
+
+  const footerGroup = (data: any) => {
+    const paidAmount = data.installments.reduce(
+      (total: number, item: any) =>
+        item.paymentStatus === "PAID"
+          ? total + item.nominalPayment - item.nominalPayment
+          : total,
+      0
+    );
+    const balance = calculateBalance(data, paidAmount);
+
+    return (
+      <ColumnGroup>
+        <Row>
+          <Column
+            footer="Total Pinjaman :"
+            colSpan={5}
+            footerStyle={{ textAlign: "right" }}
+          />
+          <Column
+            footer={formatCurrency(calculatePayment(data.installments))}
+          />
+        </Row>
+        <Row>
+          <Column
+            footer="Belum dibayar :"
+            colSpan={5}
+            footerStyle={{ textAlign: "right" }}
+          />
+          <Column footer={formatCurrency(calculateBalance(data, paidAmount))} />
+        </Row>
+      </ColumnGroup>
+    );
+  };
 
   const rowExpansionTemplate = (data: any) => {
     return (
@@ -423,208 +543,255 @@ const LoanTable = (props: TLoanTable) => {
     );
   };
 
-  const saveUploadedData = async (event: any) => {
+  const uploadHandler = (e: any) => {
+    const file = e.files[0];
+    if (file.size > 2000000) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Ukuran file melebihi 2MB",
+        life: 3000,
+      });
+      setVisibleDialog(false);
+    } else {
+      setFileData(file);
+    }
+  };
+
+  const saveUploadedData = async () => {
     try {
       setUploadFile(true);
-      if (event.files && event.files.length > 0) {
-        const file = event.files[0];
-        const base64 = await convertToBase64(file);
-        const response = await axios.post(`${API_URL}/api/loantransAdd`, {
-          installmentId: dataPayment?.installmentId,
-          base64_data: base64,
-        });
+      if (fileData) {
+        const formData = new FormData();
+        formData.append("installmentId", dataPayment?.id);
+        formData.append("pdf", fileData); // Pastikan kunci yang digunakan adalah "pdf"
 
-        console.log(response.data);
+        const response = await axios.post(
+          `${API_URL}/api/loantransAdd`,
+          formData
+        );
+
+        console.log("File uploaded successfully:", response.data);
         setVisibleDialog(false);
-      } else {
-        console.error("No file selected");
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "File berhasil diunggah",
+          life: 3000,
+        });
       }
     } catch (error) {
-      console.error("Failed to save uploaded data:", error);
+      console.error("Error uploading file:", error);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Gagal mengunggah file",
+        life: 3000,
+      });
     } finally {
       setUploadFile(false);
     }
   };
 
-  const convertToBase64 = (file: any) => {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(file);
-      fileReader.onload = () => {
-        resolve(fileReader.result);
-      };
-      fileReader.onerror = (error) => {
-        reject(error);
-      };
-    });
-  };
-
   return (
-    <div className="card">
-      <Toolbar center={centerContent} end={endContent} className="mb-2" />
-      <DataTable
-        ref={dt}
-        value={props.data.slice((currentPage - 1) * rows, currentPage * rows)}
-        first={first}
-        rows={rows}
-        loading={props.loading}
-        stripedRows
-        scrollable
-        removableSort
-        globalFilter={globalFilterValue}
-        //expand
-        expandedRows={expandedRows}
-        onRowToggle={(e) => setExpandedRows(e.data)}
-        rowExpansionTemplate={rowExpansionTemplate}
-      >
-        <Column expander={allowExpansion} style={{ width: "5rem" }} />
-        <Column
-          header="No"
-          headerStyle={{ width: "3rem" }}
-          body={(data, options) => options.rowIndex + 1}
-        />
-        <Column
-          field="code"
-          header="Kode Pinjaman"
-          sortable
-          style={{ width: "25%" }}
-        />
-        <Column
-          field="user.name"
-          header="Nama Anggota"
-          sortable
-          style={{ width: "25%" }}
-        />
-        <Column
-          field="user.nik"
-          header="NIK"
-          sortable
-          style={{ width: "25%" }}
-        />
-        <Column
-          field="date"
-          header="Tanggal Pengajuan"
-          sortable
-          style={{ width: "25%" }}
-          body={(rowData) => {
-            const date = new Date(rowData.date);
-            return date.toLocaleDateString("id-ID", {
-              day: "numeric",
-              month: "numeric",
-              year: "numeric",
-            });
-          }}
-        />
-        <Column
-          field="nominal"
-          header="Nominal Pinjaman"
-          body={priceBodyTemplatePinjaman}
-          sortable
-          style={{ width: "25%" }}
-        />
-        <Column
-          field="interest"
-          header="Bunga (2%)"
-          sortable
-          style={{ width: "25%" }}
-        />
-        <Column
-          field="tenor"
-          header="Tenor"
-          sortable
-          style={{ width: "25%" }}
-        />
-        <Column
-          field="loanStatus"
-          header="Validasi Kantor Pusat"
-          sortable
-          body={validateBodyTemplate}
-        />
-        <Column
-          field="status"
-          header="Status"
-          sortable
-          body={statusBodyTemplate}
-        />
-      </DataTable>
-
-      <Paginator
-        first={first}
-        rows={rows}
-        totalRecords={120}
-        rowsPerPageOptions={[5, 10, 20, 30]}
-        onPageChange={onPageChange}
-        currentPageReportTemplate={`Halaman ${currentPage}`}
-      />
-
-      <Dialog
-        header={
-          dataPayment ? `Payment at ${formatDate(dataPayment?.date)}` : null
-        }
-        visible={visibleDialog}
-        style={{ width: "50rem" }}
-        onHide={() => {
-          setVisibleDialog(false);
-          setDataPayment(null);
-        }}
-      >
-        <form>
-          <div className="grid">
-            <div className="col-4">
-              <div className=" mt-2">Nominal</div>
-            </div>
-            <div className="col-8">
-              <div className="text-center">
-                <InputNumber
-                  value={dataPayment?.nominalPayment}
-                  mode="currency"
-                  currency="IDR"
-                  locale="id-ID"
-                  minFractionDigits={2}
-                  style={{ fontWeight: "bold", width: "100%" }}
-                />
-              </div>
-            </div>
-            <div className="col-4">
-              <div className="mt-2">Payment Method</div>
-            </div>
-            <div className="col-8">
-              <div className="text-center">
-                <InputText
-                  value={dataPayment?.paymentMethod}
-                  disabled
-                  style={{ fontWeight: "bold", width: "100%" }}
-                />
-              </div>
-            </div>
-          </div>
-        </form>
-        <Card>
-          <div className="card">
-            <FileUpload
-              name="invoice[]"
-              multiple
-              accept="pdf/*"
-              maxFileSize={2000000}
-              emptyTemplate={
-                <p className="m-0">Drag and drop files to here to upload.</p>
+    <>
+      <Toast ref={toast} />
+      <div className="card">
+        <Toolbar center={centerContent} end={endContent} className="mb-2" />
+        <DataTable
+          ref={dt}
+          value={props.data.slice((currentPage - 1) * rows, currentPage * rows)}
+          first={first}
+          rows={rows}
+          loading={props.loading}
+          stripedRows
+          scrollable
+          removableSort
+          globalFilter={globalFilterValue}
+          //expand
+          expandedRows={expandedRows}
+          onRowToggle={(e) => setExpandedRows(e.data)}
+          rowExpansionTemplate={rowExpansionTemplate}
+        >
+          <Column expander={allowExpansion} style={{ width: "5rem" }} />
+          <Column
+            header="No"
+            headerStyle={{ width: "3rem" }}
+            body={(data, options) => options.rowIndex + 1}
+          />
+          <Column
+            field="code"
+            header="Kode Pinjaman"
+            sortable
+            style={{ width: "25%" }}
+          />
+          <Column
+            field="user.name"
+            header="Nama Anggota"
+            sortable
+            style={{ width: "25%" }}
+          />
+          <Column
+            field="user.nik"
+            header="NIK"
+            sortable
+            style={{ width: "25%" }}
+          />
+          <Column
+            field="date"
+            header="Tanggal Pengajuan"
+            sortable
+            style={{ width: "25%" }}
+            body={(rowData) => {
+              const date = new Date(rowData.date);
+              return date.toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "numeric",
+                year: "numeric",
+              });
+            }}
+          />
+          <Column
+            field="nominal"
+            header="Nominal Pinjaman"
+            body={priceBodyTemplatePinjaman}
+            sortable
+            style={{ width: "25%" }}
+          />
+          <Column
+            field="interest"
+            header="Bunga (2%)"
+            sortable
+            style={{ width: "25%" }}
+          />
+          <Column
+            field="tenor"
+            header="Tenor"
+            sortable
+            style={{ width: "25%" }}
+          />
+          <Column
+            field="description"
+            header="Deskripsi"
+            sortable
+            style={{ width: "25%" }}
+          />
+          <Column
+            field="validationLoanStatus"
+            header="Validasi Kantor Cabang"
+            sortable
+            style={{ width: "25%" }}
+            body={regionalValidateTemplate}
+          />
+          <Column
+            field="loanStatus"
+            header="Validasi Kantor Pusat"
+            sortable
+            style={{ width: "25%" }}
+            body={validateBodyTemplate}
+          />
+          <Column
+            field="status"
+            header="Status"
+            sortable
+            style={{ width: "25%" }}
+            body={statusBodyTemplate}
+          />
+          <Column
+            field="reason"
+            header="Catatan"
+            sortable
+            style={{ width: "25%" }}
+            body={(rowData: any) => {
+              if (rowData.validationLoanStatus === "Revisions") {
+                return rowData.reason;
+              } else if (rowData.status === "LUNAS") {
+                return "Angsuran Telah Selesai";
+              } else if (
+                rowData.loanStatus === "Rejected" ||
+                rowData.validationLoanStatus === "Invalid"
+              ) {
+                return rowData.reason;
               }
-              chooseLabel="invoice"
-              onUpload={saveUploadedData}
+            }}
+          />
+          <Column
+            body={editButtonTemplate}
+            style={{ width: "6rem", textAlign: "center" }}
+          />
+        </DataTable>
+
+        <Paginator
+          first={first}
+          rows={rows}
+          totalRecords={120}
+          rowsPerPageOptions={[5, 10, 20, 30]}
+          onPageChange={onPageChange}
+          currentPageReportTemplate={`Halaman ${currentPage}`}
+        />
+
+        <Dialog
+          header={
+            dataPayment ? `Payment at ${formatDate(dataPayment?.date)}` : null
+          }
+          visible={visibleDialog}
+          style={{ width: "50rem" }}
+          onHide={() => {
+            setVisibleDialog(false);
+            setDataPayment(null);
+          }}
+        >
+          <form>
+            <div className="grid">
+              <div className="col-4">
+                <div className=" mt-2">Nominal</div>
+              </div>
+              <div className="col-8">
+                <div className="text-center">
+                  <InputNumber
+                    value={dataPayment?.nominalPayment}
+                    mode="currency"
+                    currency="IDR"
+                    locale="id-ID"
+                    minFractionDigits={2}
+                    style={{ fontWeight: "bold", width: "100%" }}
+                  />
+                </div>
+              </div>
+              <div className="col-4">
+                <div className="mt-2">Payment Method</div>
+              </div>
+              <div className="col-8">
+                <div className="text-center">
+                  <InputText
+                    value={dataPayment?.paymentMethod}
+                    disabled
+                    style={{ fontWeight: "bold", width: "100%" }}
+                  />
+                </div>
+              </div>
+            </div>
+          </form>
+          <FileUpload
+            mode="basic"
+            name="demo[]"
+            accept="application/pdf"
+            maxFileSize={2000000}
+            chooseLabel="invoice"
+            onSelect={uploadHandler}
+          />
+          <div className="p-d-flex p-jc-end">
+            <Button
+              label="Save"
+              icon="pi pi-save"
+              className="p-button-success"
+              onClick={saveUploadedData}
+              disabled={uploadFile}
             />
           </div>
-        </Card>
-        <div className="p-d-flex p-jc-end">
-          <Button
-            label="Save"
-            icon="pi pi-save"
-            className="p-button-success"
-            onClick={saveUploadedData}
-            disabled={uploadFile}
-          />
-        </div>
-      </Dialog>
-    </div>
+        </Dialog>
+      </div>
+    </>
   );
 };
 

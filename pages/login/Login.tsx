@@ -8,9 +8,9 @@ import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import { useRouter } from "next/router";
 import withoutSessionCheck from "../../src/base/utils/WithoutAuth";
-import { userLogin } from "../../src/service/auth";
 import Logo from "../../src/components/shared/logo/Logo";
 import Footer from "../../src/layouts/full/Footer";
+import { userLogin } from "../../src/service/master/auth";
 
 const Login = () => {
   const router = useRouter();
@@ -25,7 +25,7 @@ const Login = () => {
       const response = await userLogin(email, password);
       localStorage.setItem(
         "sessionAuth",
-        JSON.stringify({ auth: true, data: response.data })
+        JSON.stringify({ auth: true, data: response.data, token: response.data.access_token })
       );
       toast.current!.show({
         severity: "success",
@@ -39,13 +39,12 @@ const Login = () => {
       toast.current!.show({
         severity: "error",
         summary: "Error",
-        detail: `${error.response.data.message}`,
+        detail: "User Tidak ditemukan",
         life: 3000,
       });
       setLoading(false);
     }
   };
-
   const handleButton = async (e: React.FormEvent) => {
     e.preventDefault();
     await onSubmit();

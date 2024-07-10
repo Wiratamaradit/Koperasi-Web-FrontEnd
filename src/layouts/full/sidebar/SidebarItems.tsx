@@ -13,14 +13,14 @@ const SidebarItems = ({ toggleMobileSidebar }: any) => {
 
   useEffect(() => {
     setIsAdmin(
-      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.role ===
+      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.user?.role ===
         "Admin"
     );
   }, []);
 
   useEffect(() => {
     setIsHO(
-      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.role ===
+      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.user?.role ===
         "HO"
     );
   }, []);
@@ -33,6 +33,9 @@ const SidebarItems = ({ toggleMobileSidebar }: any) => {
             if (
               item.title === "Simulasi Pinjaman" ||
               item.title === "Simulasi Simpanan" ||
+              item.title === "Pengajuan Pinjaman" ||
+              item.title === "Pengajuan Simpanan" ||
+              item.subheader === "Services" ||
               item.subheader === "Supports"
             ) {
               return null;

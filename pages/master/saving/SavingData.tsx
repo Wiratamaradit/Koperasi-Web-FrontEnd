@@ -30,12 +30,12 @@ const Saving = () => {
       const userDetail = JSON.parse(
         localStorage.getItem("sessionAuth") || "{}"
       );
-      if (userDetail.data.role == "Admin" || userDetail.data.role == "HO") {
+      if (userDetail.data.user.role == "Admin" || userDetail.data.user.role == "HO") {
         const response = await savingList();
         setList(response.data.data);
         setLoading(false);
       } else {
-        const response = await savingList(userDetail.data.id);
+        const response = await savingList(userDetail.data.user.id);
         setList(response.data.data);
         setLoading(false);
       }

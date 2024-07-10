@@ -3,6 +3,7 @@ import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
+import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
 
 const LoanValidationGeneralTable = () => {
@@ -10,6 +11,8 @@ const LoanValidationGeneralTable = () => {
   const [data, setData] = useState<any>();
   const [getId, setGetId] = useState<any>();
   const [visibleValidate, setVisibleValidate] = useState<boolean>(false);
+  const [reason, setReason] = useState<any>();
+  const [showReasonInput, setShowReasonInput] = useState<boolean>(false);
   const getLoan = async () => {
     await axios
       .get(
@@ -27,9 +30,11 @@ const LoanValidationGeneralTable = () => {
     await axios
       .post(`${API_URL}/api/loanValidationGeneral/${id}`, {
         loanStatus: status,
+        reason: reason,
       })
       .then((response) => {
         setGetId(null);
+        setReason("");
         getLoan();
       })
       .catch((error) => {
@@ -56,25 +61,72 @@ const LoanValidationGeneralTable = () => {
   };
 
   const ValidationOption = (
-    <div>
-      <Button
-        label="Rejected"
-        icon="pi pi-times"
-        severity="danger"
-        onClick={() => {
-          setVisibleValidate(false);
-          handleValidate("Rejected", getId);
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
         }}
-      />
-      <Button
-        label="Approved"
-        icon="pi pi-check"
-        severity="success"
-        onClick={() => {
-          setVisibleValidate(false);
-          handleValidate("Approved", getId);
-        }}
-      />
+      >
+        <div className="field-radiobutton">
+          <div className="field-radiobutton-item">
+            <input
+              type="radio"
+              id="yes"
+              name="reasonOption"
+              value="yes"
+              checked={!showReasonInput}
+              onChange={() => setShowReasonInput(false)}
+            />
+            <label htmlFor="yes">Ya</label>
+          </div>
+          <div className="field-radiobutton-item">
+            <input
+              type="radio"
+              id="no"
+              name="reasonOption"
+              value="no"
+              checked={showReasonInput}
+              onChange={() => setShowReasonInput(true)}
+            />
+            <label htmlFor="no">Tidak</label>
+          </div>
+        </div>
+        {showReasonInput && (
+          <InputText
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Masukkan alasan"
+            style={{ marginTop: "0.5rem" }}
+            className="w-full"
+          />
+        )}
+      </div>
+      <div style={{ display: "flex", gap: "0.5rem", justifyContent: "end" }}>
+        {showReasonInput && (
+          <Button
+            label="Rejected"
+            icon="pi pi-times"
+            severity="danger"
+            onClick={() => {
+              setVisibleValidate(false);
+              handleValidate("Rejected", getId);
+            }}
+          />
+        )}
+        {!showReasonInput && (
+          <Button
+            label="Approved"
+            icon="pi pi-check"
+            severity="success"
+            onClick={() => {
+              setVisibleValidate(false);
+              handleValidate("Approved", getId);
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 
@@ -115,7 +167,7 @@ const LoanValidationGeneralTable = () => {
         onHide={() => setVisibleValidate(false)}
         footer={ValidationOption}
       >
-        <p className="m-0">Apakah data sudah sesuai dengan ketentuan ?</p>
+        <p className="m-0">Apakah anda setuju untuk pencairan dana ?</p>
       </Dialog>
     </>
   );

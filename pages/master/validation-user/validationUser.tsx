@@ -16,7 +16,7 @@ const validationUser = () => {
 
   useEffect(() => {
     setDataAdmin(
-      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.role
+      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.user?.role
     );
   }, []);
 

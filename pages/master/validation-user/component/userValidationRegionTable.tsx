@@ -56,33 +56,34 @@ const UserValidationRegionTable = () => {
   };
 
   const ValidationOption = (
-    <div>
-      <Button
-        label="Invalid"
-        icon="pi pi-times"
-        severity="danger"
-        onClick={() => {
-          setVisibleValidate(false);
-          handleValidate("Invalid", getId);
-        }}
-      />
-      <Button
-        label="Valid"
-        icon="pi pi-check"
-        severity="success"
-        onClick={() => {
-          setVisibleValidate(false);
-          handleValidate("Valid", getId);
-        }}
-      />
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <div style={{ display: "flex", gap: "0.5rem", justifyContent: "end" }}>
+        <Button
+          label="Invalid"
+          icon="pi pi-times"
+          severity="danger"
+          onClick={() => {
+            setVisibleValidate(false);
+            handleValidate("Invalid", getId);
+          }}
+        />
+        <Button
+          label="Valid"
+          icon="pi pi-check"
+          severity="success"
+          onClick={() => {
+            setVisibleValidate(false);
+            handleValidate("Valid", getId);
+          }}
+        />
+      </div>
     </div>
   );
-
   return (
     <>
       <DataTable value={data} tableStyle={{ minWidth: "50rem" }}>
-        <Column field="nik" header="NIK"></Column>
         <Column field="codeUser" header="Kode User"></Column>
+        <Column field="nik" header="NIK"></Column>
         <Column field="name" header="Nama Anggota"></Column>
         <Column field="email" header="Email"></Column>
         <Column field="position" header="Posisi"></Column>
@@ -106,8 +107,7 @@ const UserValidationRegionTable = () => {
         onHide={() => setVisibleValidate(false)}
         footer={ValidationOption}
       >
-        <p className="m-0">
-          Apakah data sudah sesuai dengan ketentuan ? </p>
+        <p className="m-0">Apakah data sudah sesuai dengan ketentuan ? </p>
       </Dialog>
     </>
   );

@@ -27,8 +27,8 @@ const SavingTable = (props: TSavingTable) => {
   const [first, setFirst] = useState<number>(0);
   const [rows, setRows] = useState<number>(5);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isHO, setIsHO] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(true);
+  const [isHO, setIsHO] = useState(true);
   const dt = useRef<DataTable>(null);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [expandedRows, setExpandedRows] = useState<
@@ -163,14 +163,14 @@ const SavingTable = (props: TSavingTable) => {
 
   useEffect(() => {
     setIsAdmin(
-      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.role ===
+      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.user?.role ===
         "Admin"
     );
   }, []);
 
   useEffect(() => {
     setIsHO(
-      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.role ===
+      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.user?.role ===
         "HO"
     );
   }, []);
@@ -216,22 +216,35 @@ const SavingTable = (props: TSavingTable) => {
   );
 
   const paymentButton = (data: any) => {
-    return (
-      <span className="p-buttonset">
-        <Button
-          label="Payment"
-          icon="pi pi-pencil"
-          severity="info"
-          size="small"
-          onClick={() => {
-            props.setFormCondition("Payment");
-            props.setDialogForm(true);
-            props.setSelectedData!(data);
-          }}
-          style={{ borderRadius: '10px' }}
-        />
-      </span>
+    const totalPayment = data.savingpayments.reduce(
+      (total: number, item: any) => total + item.payment,
+      0
     );
+    const isCompleted =
+      totalPayment ===
+      (data.nominalPerMonth * data.interest + data.nominalPerMonth) *
+        data.timePeriod;
+
+    if (isAdmin && !isCompleted && data.status === "ACTIVE") {
+      return (
+        <span className="p-buttonset">
+          <Button
+            label="Payment"
+            icon="pi pi-pencil"
+            severity="info"
+            size="small"
+            onClick={() => {
+              props.setFormCondition("Payment");
+              props.setDialogForm(true);
+              props.setSelectedData!(data);
+            }}
+            style={{ borderRadius: "10px" }}
+          />
+        </span>
+      );
+    } else {
+      return null;
+    }
   };
 
   const statusBodyTemplate = (data: any) => {
@@ -248,16 +261,14 @@ const SavingTable = (props: TSavingTable) => {
     switch (data.status) {
       case "Paid":
         return "success";
-
       case "ACTIVE":
         return "success";
-
       case "On-Process":
         return "warning";
-
       case "INACTIVE":
         return "danger";
-
+      case "Selesai":
+        return "info";
       default:
         return null;
     }
@@ -276,13 +287,12 @@ const SavingTable = (props: TSavingTable) => {
     switch (data.validationSavingStatus) {
       case "Approved":
         return "success";
-
       case "On-Process":
         return "warning";
-
       case "Rejected":
         return "danger";
-
+      case "Selesai":
+        return "info";
       default:
         return null;
     }
@@ -314,8 +324,20 @@ const SavingTable = (props: TSavingTable) => {
   const allowExpansion = (rowData: any) => {
     return rowData.savingpayments!.length > 0;
   };
-
   const rowExpansionTemplate = (data: any) => {
+    const totalPayment = data.savingpayments.reduce(
+      (total: number, item: any) => total + item.payment,
+      0
+    );
+    const isCompleted =
+      totalPayment ===
+      (data.nominalPerMonth * data.interest + data.nominalPerMonth) *
+        data.timePeriod;
+
+    if (isCompleted) {
+      data.validationSavingStatus = "Selesai";
+      data.status = "Selesai";
+    }
     return (
       <div className="p-3">
         <DataTable

@@ -48,7 +48,7 @@ const SavingSubmission = () => {
       toast.current!.show({
         severity: "error",
         summary: "Error",
-        detail: "Anda sudah melakukan pengajuan simpanan.",
+        detail: "Anda sedang memiliki simpanan berjalanan.",
         life: 3000,
       });
       setLoading(false);

@@ -102,9 +102,6 @@ const SavePayForm = (props: TSavePayForm) => {
                 }}
                 className="w-full"
               />
-              {formik.errors.nominal && (
-                <span style={{ color: "red" }}>{formik.errors.nominal}</span>
-              )}
             </div>
             <div className="col-2">
               <p>Metode Pembayaran</p>
@@ -138,9 +135,6 @@ const SavePayForm = (props: TSavePayForm) => {
                 }}
                 className="w-full"
               />
-              {formik.errors.date && (
-                <span style={{ color: "red" }}>{formik.errors.date}</span>
-              )}
             </div>
             <div className="col-2">
               <p>Bunga Pengembangan</p>

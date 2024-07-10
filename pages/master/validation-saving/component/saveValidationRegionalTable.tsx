@@ -116,7 +116,7 @@ const SaveValidationRegionTable = () => {
         onHide={() => setVisibleValidate(false)}
         footer={ValidationOption}
       >
-        <p className="m-0">Apakah data sudah sesuai dengan ketentuan ? </p>
+        <p className="m-0">Apakah anda menyetujui untuk menyimpan dana ? </p>
       </Dialog>
     </>
   );

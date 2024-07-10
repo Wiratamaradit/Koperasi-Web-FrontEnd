@@ -3,6 +3,7 @@ import { Button } from "primereact/button";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { Dialog } from "primereact/dialog";
+import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
 
 const UserValidationGeneralTable = () => {
@@ -56,25 +57,27 @@ const UserValidationGeneralTable = () => {
   };
 
   const ValidationOption = (
-    <div>
-      <Button
-        label="Rejected"
-        icon="pi pi-times"
-        severity="danger"
-        onClick={() => {
-          setVisibleValidate(false);
-          handleValidate("Rejected", getId);
-        }}
-      />
-      <Button
-        label="Approved"
-        icon="pi pi-check"
-        severity="success"
-        onClick={() => {
-          setVisibleValidate(false);
-          handleValidate("Approved", getId);
-        }}
-      />
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <div style={{ display: "flex", gap: "0.5rem", justifyContent: "end" }}>
+        <Button
+          label="Rejected"
+          icon="pi pi-times"
+          severity="danger"
+          onClick={() => {
+            setVisibleValidate(false);
+            handleValidate("Rejected", getId);
+          }}
+        />
+        <Button
+          label="Approved"
+          icon="pi pi-check"
+          severity="success"
+          onClick={() => {
+            setVisibleValidate(false);
+            handleValidate("Approved", getId);
+          }}
+        />
+      </div>
     </div>
   );
 
@@ -89,7 +92,10 @@ const UserValidationGeneralTable = () => {
         <Column field="branchName" header="Nama Cabang"></Column>
         <Column field="managerName" header="Nama BM"></Column>
         <Column field="validationStatus" header="Validasi Cabang"></Column>
-        <Column field="registrationStatus" header="Validasi Kantor Pusat"></Column>
+        <Column
+          field="registrationStatus"
+          header="Validasi Kantor Pusat"
+        ></Column>
         <Column
           body={actionBodyTemplate}
           exportable={false}
@@ -104,9 +110,7 @@ const UserValidationGeneralTable = () => {
         onHide={() => setVisibleValidate(false)}
         footer={ValidationOption}
       >
-        <p className="m-0">
-          Apakah data sudah sesuai dengan ketentuan ?
-        </p>
+        <p className="m-0">Apakah anda menyetujui pendaftaran ?</p>
       </Dialog>
     </>
   );

@@ -7,7 +7,6 @@ import withSessionCheck from "../../../src/base/utils/WithAuth";
 import React, { useEffect, useRef, useState } from "react";
 import { Toast } from "primereact/toast";
 import { installmentList } from "../../../src/service/master/Installment";
-import InstallmentTable from "../../../src/components-koperasi/master/installment/InstallmentTable";
 const Loan = () => {
   const breadcrumbItems: MenuItem[] = [
     { label: "Angsuran", url: "/master/installment" },
@@ -21,7 +20,7 @@ const Loan = () => {
     try {
       setLoading(true);
       const userDetail = JSON.parse(localStorage.getItem("sessionAuth") || "{}");
-      if (userDetail.data.role == "Admin" || userDetail.data.role == "HO") {
+      if (userDetail.data?.user?.role == "Admin" || userDetail.data?.user?.role == "HO") {
         const response = await installmentList();
         setList(response.data.data);
         setLoading(false);
@@ -63,7 +62,6 @@ const Loan = () => {
             subTitle: { className: "mb-0" },
           }}
         />
-        <InstallmentTable data={list} />
       </PageContainer>
     </FullLayout>
   );

@@ -49,7 +49,7 @@ const SavingForm = (props: TSavingForm) => {
   const [dropdownList, setDropdownList] = useState<any>([]);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data;
+    const user = JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data.user;
     setInitData({
       ...initialValues,
       name: user?.name,
@@ -193,9 +193,6 @@ const SavingForm = (props: TSavingForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.date && (
-              <span style={{ color: "red" }}>{formik.errors.date}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Nominal Simpanan per Bulan</p>
@@ -214,11 +211,6 @@ const SavingForm = (props: TSavingForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.nominalPerMonth && (
-              <span style={{ color: "red" }}>
-                {formik.errors.nominalPerMonth}
-              </span>
-            )}
           </div>
           <div className="col-2">
             <p>Bunga Pengembangan</p>
@@ -248,8 +240,8 @@ const SavingForm = (props: TSavingForm) => {
               placeholder="Pilih metode pembayaran"
               value={formik.values.paymentMethod}
               options={[
-                { label: "Via Transfer", value: "Via Transfer" },
-                { label: "Via Tunai", value: "Via Tunai" },
+                { label: "Transfer", value: "Transfer" },
+                { label: "Tunai", value: "Tunai" },
               ]}
               optionLabel="label"
               onChange={(e) => {
@@ -257,11 +249,6 @@ const SavingForm = (props: TSavingForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.paymentMethod && (
-              <span style={{ color: "red" }}>
-                {formik.errors.paymentMethod}
-              </span>
-            )}
           </div>
           <div className="col-2">
             <p>Jangka Waktu Simpanan</p>
@@ -286,9 +273,6 @@ const SavingForm = (props: TSavingForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.timePeriod && (
-              <span style={{ color: "red" }}>{formik.errors.timePeriod}</span>
-            )}
           </div>
           <div className="col-12 flex justify-content-center">
             <Button

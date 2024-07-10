@@ -2,7 +2,6 @@ import PageContainer from "../../../src/components/container/PageContainer";
 import { Card } from "primereact/card";
 import { useRef, useState } from "react";
 import { Toast } from "primereact/toast";
-import FormPendaftaran from "../../../src/components-koperasi/master/user/registration/RegistrationForm";
 import { Panel } from "primereact/panel";
 import { useRouter } from "next/router";
 import BlankLayout from "../../../src/layouts/blank/BlankLayout";
@@ -33,9 +32,6 @@ const Registration = () => {
         phoneNumber: data.phoneNumber,
         bankName: data.bankName,
         accountNumber: data.accountNumber,
-        validationStatus: data.validationStatus,
-        registrationStatus: data.registrationStatus,
-        status: data.status,
       });
       toast.current!.show({
         severity: "success",

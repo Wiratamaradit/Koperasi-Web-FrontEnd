@@ -13,7 +13,7 @@ const Menuitems = [
     },
     {
         id: uniqueId(),
-        title: 'Dashboard',
+        title: 'Beranda',
         icon: IconLayoutDashboard,
         href: '/',
     },

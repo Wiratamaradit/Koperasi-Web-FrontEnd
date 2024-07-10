@@ -54,7 +54,7 @@ const LoanForm = (props: TLoanForm) => {
   const toast = useRef<Toast | null>(null);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data;
+    const user = JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data.user;
     setInitData({
       ...initialValues,
       name: user?.name,
@@ -98,6 +98,7 @@ const LoanForm = (props: TLoanForm) => {
             loanStatus: values.loanStatus,
             validationStatus: values.validationStatus,
             status: values.status,
+            reason: values.reason,
           });
         props.setDialogForm!(false);
       } catch (error) {
@@ -202,9 +203,6 @@ const LoanForm = (props: TLoanForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.date && (
-              <span style={{ color: "red" }}>{formik.errors.date}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Nominal Pinjaman</p>
@@ -224,9 +222,6 @@ const LoanForm = (props: TLoanForm) => {
               className="w-full"
               max={10000000}
             />
-            {formik.errors.nominal && (
-              <span style={{ color: "red" }}>{formik.errors.nominal}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Bunga</p>
@@ -265,9 +260,6 @@ const LoanForm = (props: TLoanForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.tenor && (
-              <span style={{ color: "red" }}>{formik.errors.tenor}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Deskripsi</p>
@@ -298,9 +290,6 @@ const LoanForm = (props: TLoanForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.description && (
-              <span style={{ color: "red" }}>{formik.errors.description}</span>
-            )}
             <div className="col-12 flex justify-content-center">
               <Button
                 type="submit"

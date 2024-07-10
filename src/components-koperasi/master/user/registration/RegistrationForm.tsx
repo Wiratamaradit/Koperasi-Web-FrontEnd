@@ -101,9 +101,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.name && (
-              <span style={{ color: "red" }}>{formik.errors.name}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Email</p>
@@ -122,9 +119,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.email && (
-              <span style={{ color: "red" }}>{formik.errors.email}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Password</p>
@@ -143,9 +137,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.password && (
-              <span style={{ color: "red" }}>{formik.errors.password}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Role</p>
@@ -160,18 +151,12 @@ const RegistrationForm = (props: TRegistrationForm) => {
               placeholder="Pilih role anda"
               optionLabel="label"
               value={formik.values.role || null}
-              options={[
-                { label: "Anggota", value: "Anggota" },
-                { label: "Admin", value: "Admin" },
-              ]}
+              options={[{ label: "Anggota", value: "Anggota" }]}
               onChange={(e) => {
                 formik.setFieldValue("role", e.value);
               }}
               className="w-full"
             />
-            {formik.errors.role && (
-              <span style={{ color: "red" }}>{formik.errors.role}</span>
-            )}
           </div>
           <div className="col-2">
             <p>NIK</p>
@@ -191,9 +176,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               className="w-full"
               useGrouping={false}
             />
-            {formik.errors.nik && (
-              <span style={{ color: "red" }}>{formik.errors.nik}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Posisi/Jabatan</p>
@@ -212,9 +194,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.position && (
-              <span style={{ color: "red" }}>{formik.errors.position}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Status Karyawan</p>
@@ -235,11 +214,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.employeeStatus && (
-              <span style={{ color: "red" }}>
-                {formik.errors.employeeStatus}
-              </span>
-            )}
           </div>
           <div className="col-2">
             <p>Nama Cabang</p>
@@ -258,9 +232,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.branchName && (
-              <span style={{ color: "red" }}>{formik.errors.branchName}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Nama Pemimpin Cabang</p>
@@ -279,9 +250,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               }}
               className="w-full"
             />
-            {formik.errors.managerName && (
-              <span style={{ color: "red" }}>{formik.errors.managerName}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Tanggal Bergabung</p>
@@ -300,9 +268,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               }}
               className="w-full"
             />
-                 {formik.errors.joinDate && (
-              <span style={{ color: "red" }}>{formik.errors.joinDate}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Alamat</p>
@@ -321,9 +286,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               }}
               className="w-full"
             />
-                 {formik.errors.address && (
-              <span style={{ color: "red" }}>{formik.errors.address}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Nomor Handphone</p>
@@ -342,9 +304,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               }}
               className="w-full"
             />
-                 {formik.errors.phoneNumber && (
-              <span style={{ color: "red" }}>{formik.errors.phoneNumber}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Nama Bank</p>
@@ -363,9 +322,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               }}
               className="w-full"
             />
-                 {formik.errors.bankName && (
-              <span style={{ color: "red" }}>{formik.errors.bankName}</span>
-            )}
           </div>
           <div className="col-2">
             <p>Nomor Rekening</p>
@@ -385,9 +341,6 @@ const RegistrationForm = (props: TRegistrationForm) => {
               className="w-full"
               inputMode="numeric"
             />
-                 {formik.errors.accountNumber && (
-              <span style={{ color: "red" }}>{formik.errors.accountNumber}</span>
-            )}
           </div>
           <div className="col-12 flex justify-content-center">
             <Button

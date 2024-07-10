@@ -32,7 +32,8 @@ const LoanSubmission = () => {
         description: data.description,
         loanStatus: data.loanStatus,
         validationStatus: data.validationStatus,
-        status: data.status
+        status: data.status,
+        reason: data.reason
       });
       toast.current!.show({
         severity: "success",
@@ -45,11 +46,10 @@ const LoanSubmission = () => {
         router.push("/master/loan");
       }, 2000);
     } catch (error) {
-      console.error("Anda sudah melakukan pengajuan pinjaman:", error);
       toast.current!.show({
         severity: "error",
         summary: "Error",
-        detail: "Anda sudah melakukan pengajuan pinjaman.",
+        detail: "Anda masih memiliki tagihan yang belum lunas.",
         life: 3000,
       });
       setLoading(false);

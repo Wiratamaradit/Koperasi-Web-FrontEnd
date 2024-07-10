@@ -6,10 +6,14 @@ import { Column } from "primereact/column";
 import { Paginator, PaginatorPageChangeEvent } from "primereact/paginator";
 import { InputText } from "primereact/inputtext";
 import autoTable from "jspdf-autotable";
+import { Tag } from "primereact/tag";
 
 type TUserTable = {
   data: any;
   loading: boolean;
+  setDialogForm: (data: boolean) => void;
+  setFormCondition: (data: string) => void;
+  setSelectedData?: (data: any) => void;
 };
 
 const UserTable = (props: TUserTable) => {
@@ -29,14 +33,14 @@ const UserTable = (props: TUserTable) => {
 
   useEffect(() => {
     setIsAdmin(
-      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.role ===
+      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.user?.role ===
         "Admin"
     );
   }, []);
 
   useEffect(() => {
     setIsHO(
-      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.role ===
+      JSON.parse(localStorage.getItem("sessionAuth") || "{}")?.data?.user?.role ===
         "HO"
     );
   }, []);
@@ -68,7 +72,6 @@ const UserTable = (props: TUserTable) => {
               phoneNumber: any;
               bankName: any;
               accountNumber: any;
-              memberFee: any;
             }) => [
               row.codeUser,
               row.name,
@@ -87,7 +90,6 @@ const UserTable = (props: TUserTable) => {
               row.phoneNumber,
               row.bankName,
               row.accountNumber,
-              row.memberFee,
             ]
           ),
         });
@@ -114,7 +116,6 @@ const UserTable = (props: TUserTable) => {
             phoneNumber: any;
             bankName: any;
             accountNumber: any;
-            memberFee: any;
           }) => ({
             "Kode Anggota": row.codeUser,
             "Nama": row.name,
@@ -137,7 +138,6 @@ const UserTable = (props: TUserTable) => {
             "No. Telp": row.phoneNumber,
             "Nama Bank": row.bankName,
             "No. Rekening": row.accountNumber,
-            "Iuran": row.memberFee,
           })
         )
       );
@@ -213,6 +213,101 @@ const UserTable = (props: TUserTable) => {
       )}
     </div>
   );
+
+  const editButtonTemplate = (data: any) => {
+    if (data.validationStatus === "Revisions") {
+      return (
+        <span className="p-buttonset">
+          <Button
+            label="Revisi"
+            icon="pi pi-pencil"
+            severity="info"
+            size="small"
+            onClick={() => {
+              props.setFormCondition("Update");
+              props.setDialogForm(true);
+              props.setSelectedData!(data);
+            }}
+            style={{ borderRadius: "10px" }}
+          />
+        </span>
+      );
+    } else {
+      return null;
+    }
+  };
+
+  const statusBodyTemplate = (data: any) => {
+    return (
+      <Tag
+        value={data.status}
+        severity={getStatus(data)}
+        style={{ width: "100%" }}
+      ></Tag>
+    );
+  };
+
+  const getStatus = (data: any) => {
+    switch (data.status) {
+      case "ACTIVE":
+        return "success";
+      case "On-Process":
+        return "warning";
+      case "INACTIVE":
+        return "danger";
+
+      default:
+        return null;
+    }
+  };
+
+  const validateBodyTemplate = (data: any) => {
+    return (
+      <Tag
+        value={data.registrationStatus}
+        severity={getValidate(data)}
+        style={{ width: "100%" }}
+      ></Tag>
+    );
+  };
+
+  const getValidate = (data: any) => {
+    switch (data.registrationStatus) {
+      case "Approved":
+        return "success";
+      case "On-Process":
+        return "warning";
+      case "Rejected":
+        return "danger";
+      default:
+        return null;
+    }
+  };
+
+  const regionalValidateTemplate = (data: any) => {
+    return (
+      <Tag
+        value={data.validationStatus}
+        severity={getValidateRegional(data)}
+        style={{ width: "100%" }}
+      ></Tag>
+    );
+  };
+
+  const getValidateRegional = (data: any) => {
+    switch (data.validationStatus) {
+      case "Valid":
+        return "success";
+      case "On-Process":
+        return "warning";
+      case "Revisions":
+        return "info";
+      case "Invalid":
+        return "danger";
+      default:
+        return null;
+    }
+  };
   
   return (
     <div className="card">
@@ -244,9 +339,10 @@ const UserTable = (props: TUserTable) => {
         <Column field="phoneNumber" header="No. Telp" sortable style={{ width: '25%' }}/>
         <Column field="bankName" header="Nama Bank" sortable style={{ width: '25%' }}/>
         <Column field="accountNumber" header="No. Rekening" sortable style={{ width: '25%' }}/>
-        <Column field="validationStatus" header="Validasi Cabang" sortable style={{ width: '25%' }} />
-        <Column field="registrationStatus" header="Validasi Kantor Cabang" sortable style={{ width: '25%' }} />
-        <Column field="status" header="Status Akun" sortable style={{ width: '25%' }}/>
+        <Column field="validationStatus" header="Validasi Kantor Cabang" body={regionalValidateTemplate} sortable style={{ width: '25%' }} />
+        <Column field="registrationStatus" header="Validasi Kantor Pusat" body={validateBodyTemplate} sortable style={{ width: '25%' }} />
+        <Column field="status" header="Status Akun" sortable body={statusBodyTemplate} style={{ width: '25%' }}/>
+        <Column body={editButtonTemplate} style={{ width: "6rem", textAlign: "center" }} />
       </DataTable>
 
      <Paginator
