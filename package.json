@@ -10,7 +10,8 @@
     "start": "next start",
     "lint": "next lint",
     "export": "next export",
-    "post-update": "echo \"codesandbox preview only, need an update\" && yarn upgrade --latest"
+    "post-update": "echo \"codesandbox preview only, need an update\" && yarn upgrade --latest",
+    "clean": "rm -rf .next/cache"
   },
   "dependencies": {
     "@badgateway/oauth2-client": "^2.2.4",
